@@ -7,6 +7,10 @@
 #include <string.h>
 
 static i2c_dev_t pcf8574;
+static hd44780_t lcd;
+
+#define HD44780_ROWS 4
+#define HD44780_COLS 20
 
 static uint32_t get_time_sec()
 {
@@ -20,17 +24,16 @@ static const uint8_t char_data[] = {
     0x1f, 0x11, 0x0a, 0x04, 0x0a, 0x11, 0x1f, 0x00
 };
 
-static esp_err_t write_lcd_data(const hd44780_t *lcd, uint8_t data)
-{
+static esp_err_t write_lcd_data(const hd44780_t *lcd, uint8_t data) {
     return pcf8574_port_write(&pcf8574, data);
 }
 
-void lcd_test(void *pvParameters)
-{
-    hd44780_t lcd = {
-        .write_cb = write_lcd_data, // use callback to send data to LCD by I2C GPIO expander
+void lcd_initialize() {
+    // Set up the LCD configuration
+    lcd = (hd44780_t) {
+        .write_cb = write_lcd_data,
         .font = HD44780_FONT_5X8,
-        .lines = 2,
+        .lines = 4,
         .pins = {
             .rs = 0,
             .e  = 2,
@@ -42,37 +45,46 @@ void lcd_test(void *pvParameters)
         }
     };
 
+    // Initialize the LCD
     memset(&pcf8574, 0, sizeof(i2c_dev_t));
     ESP_ERROR_CHECK(pcf8574_init_desc(&pcf8574, CONFIG_EXAMPLE_I2C_ADDR, 0, CONFIG_EXAMPLE_I2C_MASTER_SDA, CONFIG_EXAMPLE_I2C_MASTER_SCL));
-
     ESP_ERROR_CHECK(hd44780_init(&lcd));
-
     hd44780_switch_backlight(&lcd, true);
 
+    // Upload custom characters if needed
     hd44780_upload_character(&lcd, 0, char_data);
     hd44780_upload_character(&lcd, 1, char_data + 8);
-
-    hd44780_gotoxy(&lcd, 0, 0);
-    hd44780_puts(&lcd, "\x08 Hello world!");
-    hd44780_gotoxy(&lcd, 0, 1);
-    hd44780_puts(&lcd, "\x09 ");
-
-    char time[16];
-
-    while (1)
-    {
-        hd44780_gotoxy(&lcd, 2, 1);
-
-        snprintf(time, 7, "%" PRIu32 "  ", (uint32_t)get_time_sec());
-        time[sizeof(time) - 1] = 0;
-
-        hd44780_puts(&lcd, time);
-
-        vTaskDelay(pdMS_TO_TICKS(1000));
-    }
 }
 
-void lcd_main() {
+void lcd_clear(uint8_t line) {
+    // Position the cursor to the start of the line
+    hd44780_gotoxy(&lcd, 0, line);
+
+    // Write spaces to clear the line
+    for (int i = 0; i < HD44780_COLS; i++) {
+        hd44780_putc(&lcd, ' '); // Write a space character
+    }
+
+    // Reset the cursor to the start of the line
+    hd44780_gotoxy(&lcd, 0, line);
+}
+
+
+void lcd_fullclear() {
+    for (int line = 0; line < HD44780_ROWS; line++) {
+        lcd_clear(line);
+    }
+    hd44780_gotoxy(&lcd, 0, 0);
+}
+
+void lcd_write(const char *text, uint8_t x, uint8_t y, bool clear) {
+    if (clear) {lcd_clear(y);}
+    hd44780_gotoxy(&lcd, x, y);
+    hd44780_puts(&lcd, text);
+}
+
+void lcd_init() {
     ESP_ERROR_CHECK(i2cdev_init());
-    xTaskCreate(lcd_test, "lcd_test", configMINIMAL_STACK_SIZE * 5, NULL, 5, NULL);
+    lcd_initialize();
+    lcd_fullclear();
 }

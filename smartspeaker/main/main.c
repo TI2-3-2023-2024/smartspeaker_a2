@@ -3,8 +3,8 @@
 #include <freertos/task.h>
 #include <stdio.h>
 #include <string.h>
-#include "lcd_man.h"
+#include "lcd/lcd_man.h"
 
 void app_main() {
-    lcd_main();
+    lcd_init();
 }

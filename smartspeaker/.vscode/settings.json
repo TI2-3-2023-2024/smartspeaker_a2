@@ -19,6 +19,7 @@
     "files.associations": {
         "task.h": "c",
         "freertos.h": "c",
-        "lcd_man.h": "c"
+        "lcd_man.h": "c",
+        "string": "c"
     }
 }
