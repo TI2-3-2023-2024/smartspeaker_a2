@@ -11,6 +11,7 @@
 #include "esp_netif_sntp.h"
 #include "lwip/ip_addr.h"
 #include "esp_sntp.h"
+#include "datetime.h"
 
 static const char *TAG = "wifi_man";
 
@@ -25,6 +26,7 @@ static const char *TAG = "wifi_man";
 RTC_DATA_ATTR static int boot_count = 0;
 
 static void obtain_time(void);
+static void print_servers(void);
 
 #ifdef CONFIG_SNTP_TIME_SYNC_METHOD_CUSTOM
 void sntp_sync_time(struct timeval *tv)
@@ -40,7 +42,7 @@ void time_sync_notification_cb(struct timeval *tv)
     ESP_LOGI(TAG, "Notification of a time synchronization event");
 }
 
-void wifi_main(void)
+void wifi_init(void)
 {
     ++boot_count;
     ESP_LOGI(TAG, "Boot count: %d", boot_count);
@@ -56,78 +58,9 @@ void wifi_main(void)
         // update 'now' variable with current time
         time(&now);
     }
-#ifdef CONFIG_SNTP_TIME_SYNC_METHOD_SMOOTH
-    else {
-        // add 500 ms error to the current system time.
-        // Only to demonstrate a work of adjusting method!
-        {
-            ESP_LOGI(TAG, "Add a error for test adjtime");
-            struct timeval tv_now;
-            gettimeofday(&tv_now, NULL);
-            int64_t cpu_time = (int64_t)tv_now.tv_sec * 1000000L + (int64_t)tv_now.tv_usec;
-            int64_t error_time = cpu_time + 500 * 1000L;
-            struct timeval tv_error = { .tv_sec = error_time / 1000000L, .tv_usec = error_time % 1000000L };
-            settimeofday(&tv_error, NULL);
-        }
-
-        ESP_LOGI(TAG, "Time was set, now just adjusting it. Use SMOOTH SYNC method.");
-        obtain_time();
-        // update 'now' variable with current time
-        time(&now);
-    }
-#endif
-
-    char strftime_buf[64];
-
-    // Set timezone to Eastern Standard Time and print local time
-    setenv("TZ", "EST5EDT,M3.2.0/2,M11.1.0", 1);
-    tzset();
-    localtime_r(&now, &timeinfo);
-    strftime(strftime_buf, sizeof(strftime_buf), "%c", &timeinfo);
-    ESP_LOGI(TAG, "The current date/time in New York is: %s", strftime_buf);
-
-    // Set timezone to China Standard Time
-    setenv("TZ", "CST-8", 1);
-    tzset();
-    localtime_r(&now, &timeinfo);
-    strftime(strftime_buf, sizeof(strftime_buf), "%c", &timeinfo);
-    ESP_LOGI(TAG, "The current date/time in Shanghai is: %s", strftime_buf);
-
-    if (sntp_get_sync_mode() == SNTP_SYNC_MODE_SMOOTH) {
-        struct timeval outdelta;
-        while (sntp_get_sync_status() == SNTP_SYNC_STATUS_IN_PROGRESS) {
-            adjtime(NULL, &outdelta);
-            ESP_LOGI(TAG, "Waiting for adjusting time ... outdelta = %jd sec: %li ms: %li us",
-                        (intmax_t)outdelta.tv_sec,
-                        outdelta.tv_usec/1000,
-                        outdelta.tv_usec%1000);
-            vTaskDelay(2000 / portTICK_PERIOD_MS);
-        }
-    }
-
-    const int deep_sleep_sec = 10;
-    ESP_LOGI(TAG, "Entering deep sleep for %d seconds", deep_sleep_sec);
-    esp_deep_sleep(1000000LL * deep_sleep_sec);
 }
 
-static void print_servers(void)
-{
-    ESP_LOGI(TAG, "List of configured NTP servers:");
-
-    for (uint8_t i = 0; i < SNTP_MAX_SERVERS; ++i){
-        if (esp_sntp_getservername(i)){
-            ESP_LOGI(TAG, "server %d: %s", i, esp_sntp_getservername(i));
-        } else {
-            // we have either IPv4 or IPv6 address, let's print it
-            char buff[INET6_ADDRSTRLEN];
-            ip_addr_t const *ip = esp_sntp_getserver(i);
-            if (ipaddr_ntoa_r(ip, buff, INET6_ADDRSTRLEN) != NULL)
-                ESP_LOGI(TAG, "server %d: %s", i, buff);
-        }
-    }
-}
-
-static void obtain_time(void)
+void obtain_time(void)
 {
     ESP_ERROR_CHECK( nvs_flash_init() );
     ESP_ERROR_CHECK(esp_netif_init());
@@ -215,4 +148,79 @@ static void obtain_time(void)
 
     ESP_ERROR_CHECK( example_disconnect() );
     esp_netif_sntp_deinit();
+}
+
+static void print_servers(void)
+{
+    ESP_LOGI(TAG, "List of configured NTP servers:");
+
+    for (uint8_t i = 0; i < SNTP_MAX_SERVERS; ++i){
+        if (esp_sntp_getservername(i)){
+            ESP_LOGI(TAG, "server %d: %s", i, esp_sntp_getservername(i));
+        } else {
+            // we have either IPv4 or IPv6 address, let's print it
+            char buff[INET6_ADDRSTRLEN];
+            ip_addr_t const *ip = esp_sntp_getserver(i);
+            if (ipaddr_ntoa_r(ip, buff, INET6_ADDRSTRLEN) != NULL)
+                ESP_LOGI(TAG, "server %d: %s", i, buff);
+        }
+    }
+}
+
+void obtain_time_now(void)
+{
+    time_t now;
+    struct tm timeinfo;
+    time(&now);
+    localtime_r(&now, &timeinfo);
+    obtain_time();
+}
+
+struct DateTime get_time(void) {
+    time_t now;
+    struct tm *timeinfo;
+    struct DateTime dt;
+
+    // Get current time
+    time(&now);
+    timeinfo = localtime(&now);
+
+    // Populate the struct with time components
+    dt.year = timeinfo->tm_year + 1900;   // Years since 1900, so add 1900
+    dt.month = timeinfo->tm_mon + 1;      // Months are zero-based, so add 1
+    dt.day = timeinfo->tm_mday;
+    dt.hour = timeinfo->tm_hour;
+    dt.minute = timeinfo->tm_min;
+    dt.second = timeinfo->tm_sec;
+
+    // Print the current time
+    printf("Current time: %04d-%02d-%02d %02d:%02d:%02d\n", dt.year, dt.month, dt.day, dt.hour, dt.minute, dt.second);
+
+    return dt;
+}
+
+void wifi_main(void)
+{
+    wifi_init();
+    obtain_time_now();
+
+    
+
+    // Access the obtained time
+    time_t now;
+    struct tm timeinfo;
+    time(&now);
+    localtime_r(&now, &timeinfo);
+
+    // Accessing individual time components
+    int year = timeinfo.tm_year + 1900; // Years since 1900, so add 1900 to get the current year
+    int month = timeinfo.tm_mon + 1;    // Months are zero-based, so add 1 to get the current month
+    int day = timeinfo.tm_mday;         // Day of the month (1 to 31)
+    int hour = timeinfo.tm_hour;        // Hours (0 to 23)
+    int minute = timeinfo.tm_min;       // Minutes (0 to 59)
+    int second = timeinfo.tm_sec;       // Seconds (0 to 59)
+
+    // Print the obtained time
+    ESP_LOGI(TAG, "Current time: %04d-%02d-%02d %02d:%02d:%02d", year, month, day, hour, minute, second);
+
 }
