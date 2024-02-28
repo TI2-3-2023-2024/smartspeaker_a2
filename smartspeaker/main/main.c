@@ -21,6 +21,6 @@ void app_main() {
     // Format the output into the buffer
     sprintf(buffer, "%d:%d", dt.hour, dt.minute);
 
-    lcd_write(buffer, 0, 1, false);
+    lcd_centerwrite(buffer, 1, false);
 
 }

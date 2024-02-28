@@ -83,6 +83,17 @@ void lcd_write(const char *text, uint8_t x, uint8_t y, bool clear) {
     hd44780_puts(&lcd, text);
 }
 
+void lcd_centerwrite(const char *text, uint8_t y, bool clear) {
+
+    int center = HD44780_COLS / 2;
+    int text_length = strlen(text);
+
+    int x = center - (text_length / 2) - 1;
+    
+    lcd_write(text, x, y, clear);
+
+}
+
 void lcd_init() {
     ESP_ERROR_CHECK(i2cdev_init());
     lcd_initialize();
