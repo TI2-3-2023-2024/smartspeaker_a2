@@ -20,6 +20,7 @@
         "task.h": "c",
         "freertos.h": "c",
         "lcd_man.h": "c",
-        "string": "c"
+        "string": "c",
+        "hd44780.h": "c"
     }
 }
