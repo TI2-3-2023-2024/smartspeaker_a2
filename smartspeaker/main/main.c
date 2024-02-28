@@ -7,4 +7,6 @@
 
 void app_main() {
     lcd_init();
+
+    lcd_write("Hello World!", 0, 0, false);
 }
