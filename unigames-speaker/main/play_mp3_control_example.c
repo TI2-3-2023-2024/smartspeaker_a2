@@ -38,6 +38,7 @@ void app_main(void)
 #endif
 
     int a = 6969;
+    char* b = "sjoerd";
     audio_component_t player = init_audio(i2s_cfg);
     set_volume(&player, 100);
     play_audio(&player, &hr_mp3);
