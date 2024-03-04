@@ -1,5 +1,17 @@
 menu "Example configuration"
 
+    config EXAMPLE_WIFI_SSID
+        string "WiFi SSID"
+        default  "OnePlus 10 Pro - Kersjan14"
+
+    config EXAMPLE_WIFI_PASSWORD
+        string "WiFi Password"
+        default  "Klootzak"
+
+    config EXAMPLE_WIFI_CONN_MAX_RETRY
+        int "Maximum WiFi connection retry"
+        default 6
+
     config SNTP_TIME_SERVER
         string "SNTP server name"
         default "pool.ntp.org"

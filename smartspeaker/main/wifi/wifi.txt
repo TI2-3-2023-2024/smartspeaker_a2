@@ -1,0 +1,2 @@
+WIFI_SSID="OnePlus 10 Pro - Kersjan14"
+WIFI_PASSWORD="Klootzak"

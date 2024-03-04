@@ -12,7 +12,7 @@
     "idf.openOcdConfigs": [
         "board/esp32-bridge.cfg"
     ],
-    "idf.portWin": "COM13",
+    "idf.portWin": "COM5",
     "idf.pythonBinPathWin": "C:\\esp-tools\\.espressif\\python_env\\idf5.1_py3.11_env\\Scripts\\python.exe",
     "idf.toolsPathWin": "C:\\esp-tools\\.espressif",
     "idf.flashType": "UART",

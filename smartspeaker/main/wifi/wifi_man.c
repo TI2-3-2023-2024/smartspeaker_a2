@@ -14,6 +14,7 @@
 #include "datetime.h"
 
 static const char *TAG = "wifi_man";
+static const int hourCorrection = 1;
 
 #ifndef INET6_ADDRSTRLEN
 #define INET6_ADDRSTRLEN 48
@@ -189,7 +190,7 @@ struct DateTime get_time(void) {
     dt.year = timeinfo->tm_year + 1900;   // Years since 1900, so add 1900
     dt.month = timeinfo->tm_mon + 1;      // Months are zero-based, so add 1
     dt.day = timeinfo->tm_mday;
-    dt.hour = timeinfo->tm_hour;
+    dt.hour = timeinfo->tm_hour + hourCorrection;
     dt.minute = timeinfo->tm_min;
     dt.second = timeinfo->tm_sec;
 
