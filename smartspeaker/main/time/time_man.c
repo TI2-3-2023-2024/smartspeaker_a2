@@ -13,7 +13,7 @@
 #include "esp_sntp.h"
 #include "datetime.h"
 
-static const char *TAG = "wifi_man";
+static const char *TAG = "time_man";
 static const int hourCorrection = 1;
 
 #ifndef INET6_ADDRSTRLEN
@@ -43,10 +43,11 @@ void time_sync_notification_cb(struct timeval *tv)
     ESP_LOGI(TAG, "Notification of a time synchronization event");
 }
 
-void wifi_init(void)
+void time_init(void)
 {
     ++boot_count;
     ESP_LOGI(TAG, "Boot count: %d", boot_count);
+    // obtain_time();
 
     time_t now;
     struct tm timeinfo;
@@ -168,60 +169,23 @@ static void print_servers(void)
     }
 }
 
-void obtain_time_now(void)
-{
-    time_t now;
-    struct tm timeinfo;
-    time(&now);
-    localtime_r(&now, &timeinfo);
-    obtain_time();
-}
-
 struct DateTime get_time(void) {
-    time_t now;
-    struct tm *timeinfo;
     struct DateTime dt;
-
-    // Get current time
+    
+    // Get the current time
+    time_t now;
     time(&now);
-    timeinfo = localtime(&now);
-
-    // Populate the struct with time components
+    
+    // Parse the current time into a tm structure
+    struct tm *timeinfo = localtime(&now);
+    
+    // Populate the DateTime struct with the parsed time
     dt.year = timeinfo->tm_year + 1900;   // Years since 1900, so add 1900
     dt.month = timeinfo->tm_mon + 1;      // Months are zero-based, so add 1
     dt.day = timeinfo->tm_mday;
     dt.hour = timeinfo->tm_hour + hourCorrection;
     dt.minute = timeinfo->tm_min;
     dt.second = timeinfo->tm_sec;
-
-    // Print the current time
-    printf("Current time: %04d-%02d-%02d %02d:%02d:%02d\n", dt.year, dt.month, dt.day, dt.hour, dt.minute, dt.second);
-
-    return dt;
-}
-
-void wifi_main(void)
-{
-    wifi_init();
-    obtain_time_now();
-
     
-
-    // Access the obtained time
-    time_t now;
-    struct tm timeinfo;
-    time(&now);
-    localtime_r(&now, &timeinfo);
-
-    // Accessing individual time components
-    int year = timeinfo.tm_year + 1900; // Years since 1900, so add 1900 to get the current year
-    int month = timeinfo.tm_mon + 1;    // Months are zero-based, so add 1 to get the current month
-    int day = timeinfo.tm_mday;         // Day of the month (1 to 31)
-    int hour = timeinfo.tm_hour;        // Hours (0 to 23)
-    int minute = timeinfo.tm_min;       // Minutes (0 to 59)
-    int second = timeinfo.tm_sec;       // Seconds (0 to 59)
-
-    // Print the obtained time
-    ESP_LOGI(TAG, "Current time: %04d-%02d-%02d %02d:%02d:%02d", year, month, day, hour, minute, second);
-
+    return dt;
 }

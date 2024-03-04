@@ -21,6 +21,11 @@
         "freertos.h": "c",
         "lcd_man.h": "c",
         "string": "c",
-        "hd44780.h": "c"
+        "hd44780.h": "c",
+        "esp_err.h": "c",
+        "nvs_flash.h": "c",
+        "compare": "cpp",
+        "esp_wifi.h": "c",
+        "inttypes.h": "c"
     }
 }
