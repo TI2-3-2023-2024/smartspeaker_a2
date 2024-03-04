@@ -37,6 +37,7 @@ void app_main(void)
     i2s_stream_cfg_t i2s_cfg = I2S_STREAM_CFG_DEFAULT();
 #endif
 
+    int a = 6969;
     audio_component_t player = init_audio(i2s_cfg);
     set_volume(&player, 100);
     play_audio(&player, &hr_mp3);
