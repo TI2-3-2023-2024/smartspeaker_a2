@@ -7,34 +7,27 @@
 #include "time/time_man.h"
 #include "time/datetime.h"
 
-void wait_for_60_seconds(void);
+void wait(int seconds);
 
 void app_main() {
     lcd_init();
     time_init();
 
-    lcd_centerwrite("Time:", 0, false);
+    struct DateTime dt;
+    char buffer[20];
 
-    struct DateTime dt = get_time();
-    char buffer[20];  // Adjust the size as needed
+    lcd_centerwrite("Time:", 1, false);
 
-    // Format the output into the buffer
-    sprintf(buffer, "%d:%d", dt.hour, dt.minute);
-
-    lcd_centerwrite(buffer, 1, false);
-
-    wait_for_60_seconds();
-
-    dt = get_time();
-
-    // Format the output into the buffer
-    sprintf(buffer, "%d:%d", dt.hour, dt.minute);
-
-    lcd_centerwrite(buffer, 2, false);
+    while(true) {
+        dt = get_time();
+        sprintf(buffer, "%02d:%02d", dt.hour, dt.minute);
+        lcd_centerwrite(buffer, 2, false);
+        wait(60 - dt.second);
+    }
 
 }
 
-void wait_for_60_seconds() {
-    const TickType_t delay_ms = 60000; // 60 seconds in milliseconds
+void wait(int seconds) {
+    const TickType_t delay_ms = seconds * 1000;
     vTaskDelay(delay_ms / portTICK_PERIOD_MS);
 }

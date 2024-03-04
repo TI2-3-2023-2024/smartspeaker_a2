@@ -14,6 +14,7 @@
 #include "datetime.h"
 
 static const char *TAG = "time_man";
+// Time correction due to timezones
 static const int hourCorrection = 1;
 
 #ifndef INET6_ADDRSTRLEN
@@ -43,6 +44,7 @@ void time_sync_notification_cb(struct timeval *tv)
     ESP_LOGI(TAG, "Notification of a time synchronization event");
 }
 
+/// @brief This function needs to be called in order to be able to get the current time.
 void time_init(void)
 {
     ++boot_count;
@@ -169,6 +171,7 @@ static void print_servers(void)
     }
 }
 
+/// @brief This function retrieves the current datetime in the datetime struct.
 struct DateTime get_time(void) {
     struct DateTime dt;
     
