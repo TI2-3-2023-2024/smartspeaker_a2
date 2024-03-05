@@ -8,13 +8,13 @@
    software is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
    CONDITIONS OF ANY KIND, either express or implied.
 */
-
 #include <stdio.h>
 #include "audio/audio_man.h"
 #include "lcd/lcd_man.h"
 #include "time/time_man.h"
 #include "time/datetime.h"
 #include "clock/clock_man.h"
+#include "buttons/button_man.h"
 
 // low rate mp3 audio
 extern const uint8_t lr_mp3_start[] asm("_binary_music_16b_2c_8000hz_mp3_start");
@@ -30,11 +30,42 @@ extern const uint8_t hr_mp3_end[]   asm("_binary_music_16b_2c_44100hz_mp3_end");
 
 void wait(int seconds);
 
-void app_main(void) {
-    lcd_init();
-    time_init();
+void pressed(int a) { 
+    switch(a){
+        case 1:
+        printf("tab omhoog\n");
+        break;
+        case 2:
+        printf("terug\n");
+        break;
+        case 3:
+        printf("ENTER\n");
+        break;
+        case 4:
+        printf("tab omlaag\n");
+        break;
+        case 5:
+        printf("volume omlaag\n");
+        break;
+        case 6:
+        printf("volume omhoog\n");
+        break;
+        case 7:
+        printf("Klok afspelen\n");
+        break;
+        case 8:
+        printf("Deze knop heeft geen functie\n");
+        break;
+    }
+} 
 
-    lcd_write("test", 0, 0, false);
+void app_main(void) {
+    // lcd_init();
+    button_han_init();
+
+    // time_init();
+
+    // lcd_write("test", 0, 0, false);
 
 //     file_marker_t hr_mp3 = {
 //         .start = hr_mp3_start,
@@ -56,22 +87,22 @@ void app_main(void) {
 
 
 
-    struct DateTime dt;
-    char buffer[20];
+    // struct DateTime dt;
+    // char buffer[20];
 
-    lcd_centerwrite("Time:", 1, false);
+    // lcd_centerwrite("Time:", 1, false);
 
-    while (true) {
-        dt = get_time();
-        sprintf(buffer, "%02d:%02d", dt.hour, dt.minute);
-        lcd_centerwrite(buffer, 2, false);
+    // while (true) {
+    //     dt = get_time();
+    //     sprintf(buffer, "%02d:%02d", dt.hour, dt.minute);
+    //     lcd_centerwrite(buffer, 2, false);
 
-        if (dt.minute == 0 || dt.minute == 30) {
-            tell_time(dt.hour, dt.minute);
-        }
+    //     if (dt.minute == 0 || dt.minute == 30) {
+    //         tell_time(dt.hour, dt.minute);
+    //     }
 
-        wait(60 - dt.second);
-    }
+    //     wait(60 - dt.second);
+    // }
     
 }
 
