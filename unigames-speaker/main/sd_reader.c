@@ -113,6 +113,7 @@ void play_audio_with_event(audio_component_t *player, file_marker_t *marker, voi
                 break;
             case AEL_STATE_FINISHED:
                 if (on_finished != NULL) {
+                    // blub
                     on_finished();
                 }
                 break;
