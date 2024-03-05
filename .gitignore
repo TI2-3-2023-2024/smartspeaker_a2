@@ -2,4 +2,6 @@ unigames-speaker/build/
 unigames-speaker/dependencies.lock
 unigames-speaker/managed_components/
 unigames-speaker/sdkconfig
+unigames-speaker/.vscode
+unigames-speaker/CMakeLists.txt
 
