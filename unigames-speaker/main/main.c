@@ -15,6 +15,7 @@
 #include "time/datetime.h"
 #include "clock/clock_man.h"
 #include "buttons/button_man.h"
+#include "threads/thread_man.h"
 
 // low rate mp3 audio
 extern const uint8_t lr_mp3_start[] asm("_binary_music_16b_2c_8000hz_mp3_start");
@@ -28,16 +29,16 @@ extern const uint8_t mr_mp3_end[]   asm("_binary_music_16b_2c_22050hz_mp3_end");
 extern const uint8_t hr_mp3_start[] asm("_binary_music_16b_2c_44100hz_mp3_start");
 extern const uint8_t hr_mp3_end[]   asm("_binary_music_16b_2c_44100hz_mp3_end");
 
-void wait(int seconds);
-
-void test() {
-    printf("test!!!");
+void display() {
+    display_time();
 }
 
 void app_main(void) {
-    // lcd_init();
-    button_han_init();
+    lcd_init();
     time_init();
+    button_han_init();
+
+    start_thread("display_time", display);
 
     // struct DateTime dt;
     // char buffer[20];
@@ -56,9 +57,4 @@ void app_main(void) {
     //     wait(60 - dt.second);
     // }
     
-}
-
-void wait(int seconds) {
-    const TickType_t delay_ms = seconds * 1000;
-    vTaskDelay(delay_ms / portTICK_PERIOD_MS);
 }

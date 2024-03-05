@@ -4,5 +4,6 @@
 #include "../time/datetime.h"
 
 void tell_time(struct DateTime dt);
+void display_time(void);
 
 #endif
