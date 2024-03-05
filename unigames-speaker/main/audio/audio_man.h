@@ -1,5 +1,5 @@
-#ifndef CUSTOM_AUDIO_H
-#define CUSTOM_AUDIO_H
+#ifndef AUDIO_MAN_H
+#define AUDIO_MAN_H
 
 #include <string.h>
 #include "freertos/FreeRTOS.h"

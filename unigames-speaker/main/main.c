@@ -10,10 +10,11 @@
 */
 
 #include <stdio.h>
-#include "audio/custom_audio.h"
+#include "audio/audio_man.h"
 #include "lcd/lcd_man.h"
 #include "time/time_man.h"
 #include "time/datetime.h"
+#include "clock/clock_man.h"
 
 // low rate mp3 audio
 extern const uint8_t lr_mp3_start[] asm("_binary_music_16b_2c_8000hz_mp3_start");
@@ -32,6 +33,8 @@ void wait(int seconds);
 void app_main(void) {
     lcd_init();
     time_init();
+
+    lcd_write("test", 0, 0, false);
 
 //     file_marker_t hr_mp3 = {
 //         .start = hr_mp3_start,
@@ -64,12 +67,12 @@ void app_main(void) {
         lcd_centerwrite(buffer, 2, false);
 
         if (dt.minute == 0 || dt.minute == 30) {
-            // Run Tell the time.
+            tell_time(dt.hour, dt.minute);
         }
 
         wait(60 - dt.second);
     }
-
+    
 }
 
 void wait(int seconds) {

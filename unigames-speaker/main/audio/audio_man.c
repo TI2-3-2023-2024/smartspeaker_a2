@@ -1,6 +1,6 @@
-#include "custom_audio.h"
+#include "audio_man.h"
 
-static const char *TAG = "PLAY_FLASH_MP3_CONTROL";
+static const char *TAG = "audio_man";
 
 static struct {
     int pos;
