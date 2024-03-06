@@ -72,3 +72,31 @@ menu_item_t menu[] = {
 
 
 };
+
+static unsigned int current_menu_key = 0;
+static unsigned int current_menu_id = MENU_MAIN_0_ID;
+
+
+void menu_start() {
+    int key = 0;
+}
+
+void handle_menu(int key) {
+
+    switch (key)
+    {
+    case 0:
+        break;
+    
+    default:
+        break;
+    }
+}
+
+void print_menu_item(char* text[]) {
+    for (int i = 0; i < MAX_LCD_LINES; i++) {
+        if (text[i] != NULL) {
+            printf("%s\n", text[i]);
+        }
+    }
+}
