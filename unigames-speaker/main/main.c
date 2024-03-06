@@ -34,9 +34,13 @@ void test() {
     printf("test!!!");
 }
 
+void kebab(int a) {
+    printf("kebab %d\n", a);
+}
+
 void app_main(void) {
     // lcd_init();
-    button_han_init();
+    button_han_init(kebab);
     time_init();
 
     // struct DateTime dt;
