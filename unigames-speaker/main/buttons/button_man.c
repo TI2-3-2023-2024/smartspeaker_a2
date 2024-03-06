@@ -9,12 +9,13 @@
 
 static const char *TAG = "Button";
 
+void (*on_pressed)(int) = NULL;
 
-/// @brief 
-/// @param handle 
-/// @param evt 
-/// @param ctx 
-/// @return 
+/// @brief Callback function for handling input key events.
+/// @param handle The handle of the peripheral service.
+/// @param evt Pointer to the event structure containing key event information.
+/// @param ctx Pointer to the context data (unused in this function).
+/// @return ESP_OK if the key event is handled successfully, else an error code.
 static esp_err_t input_key_service_cb(periph_service_handle_t handle, periph_service_event_t *evt, void *ctx)
 {
     void (*press_pointer)(int) = pressed;
@@ -67,8 +68,11 @@ static esp_err_t input_key_service_cb(periph_service_handle_t handle, periph_ser
 
 }
 
-void button_han_init(void)
+/// @brief Initializes the button handler module and sets the callback function for button press events.
+/// @param on_pressed_callback Pointer to the function that will handle button press events.
+void button_han_init(void (*on_pressed_callback)(int))
 {
+    on_pressed = on_pressed_callback;
     ESP_LOGI(TAG, "[ 1 ] Initialize peripherals");
     esp_periph_config_t periph_cfg = DEFAULT_ESP_PERIPH_SET_CONFIG();
     esp_periph_set_handle_t set = esp_periph_set_init(&periph_cfg);

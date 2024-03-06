@@ -33,10 +33,14 @@ void display() {
     display_time();
 }
 
+void kebab(int a) {
+    printf("kebab %d\n", a);
+}
+
 void app_main(void) {
-    lcd_init();
+    // lcd_init();
+    button_han_init(kebab);
     time_init();
-    button_han_init();
 
     start_thread("display_time", display);
 
