@@ -29,27 +29,31 @@ extern const uint8_t hr_mp3_start[] asm("_binary_music_16b_2c_44100hz_mp3_start"
 extern const uint8_t hr_mp3_end[]   asm("_binary_music_16b_2c_44100hz_mp3_end");
 
 void wait(int seconds);
+void audio_test(void);
 
 void app_main(void) {
     lcd_init();
-    time_init();
 
-    struct DateTime dt;
-    char buffer[20];
+    lcd_centerwrite("test", 1, false);
 
-    lcd_centerwrite("Time:", 1, false);
+    audio_test();
 
-    while (true) {
-        dt = get_time();
-        sprintf(buffer, "%02d:%02d", dt.hour, dt.minute);
-        lcd_centerwrite(buffer, 2, false);
+    // struct DateTime dt;
+    // char buffer[20];
 
-        if (dt.minute == 0 || dt.minute == 30) {
-            tell_time(dt.hour, dt.minute);
-        }
+    // lcd_centerwrite("Time:", 1, false);
 
-        wait(60 - dt.second);
-    }
+    // while (true) {
+    //     dt = get_time();
+    //     sprintf(buffer, "%02d:%02d", dt.hour, dt.minute);
+    //     lcd_centerwrite(buffer, 2, false);
+
+    //     if (dt.minute == 0 || dt.minute == 30) {
+    //         tell_time(dt.hour, dt.minute);
+    //     }
+
+    //     wait(60 - dt.second);
+    // }
     
 }
 
