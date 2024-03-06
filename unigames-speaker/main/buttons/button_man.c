@@ -18,6 +18,12 @@ void (*on_pressed)(int) = NULL;
 /// @return ESP_OK if the key event is handled successfully, else an error code.
 static esp_err_t input_key_service_cb(periph_service_handle_t handle, periph_service_event_t *evt, void *ctx)
 {
+
+    // rec = 1
+    // set = 2
+    // play = 3
+    // mode = 4
+
     void (*press_pointer)(int) = pressed;
     ESP_LOGD(TAG, "[ * ] input key id is %d, %d", (int)evt->data, evt->type);
     const char *key_types[INPUT_KEY_SERVICE_ACTION_PRESS_RELEASE + 1] = {"UNKNOWN", "ingedrukt", "snel losgelaten", "vastgehouden", "vastgehouden losgelaten"};
@@ -25,39 +31,39 @@ static esp_err_t input_key_service_cb(periph_service_handle_t handle, periph_ser
         case INPUT_KEY_USER_ID_REC:
             ESP_LOGI(TAG, "[Rec] %s", key_types[evt->type]);
             if(key_types[evt->type] == key_types[2]){
-                press_pointer(1);
+                on_pressed(1);
             } else if(key_types[evt->type] == key_types[3]){
-                press_pointer(7);
+                on_pressed(7);
             }
             break;
         case INPUT_KEY_USER_ID_SET:
             ESP_LOGI(TAG, "[Set] %s", key_types[evt->type]);
             if(key_types[evt->type] == key_types[2]){
-                press_pointer(2);
+                on_pressed(2);
             }
             break;
         case INPUT_KEY_USER_ID_PLAY:
             ESP_LOGI(TAG, "[Play] %s", key_types[evt->type]);
             if(key_types[evt->type] == key_types[2]){
-                press_pointer(3);
+                on_pressed(3);
             }
             break;
         case INPUT_KEY_USER_ID_MODE:
             ESP_LOGI(TAG, "[Mode] %s", key_types[evt->type]);
              if(key_types[evt->type] == key_types[2]){
-                press_pointer(4);
+                on_pressed(4);
              }
             break;
         case INPUT_KEY_USER_ID_VOLDOWN:
             ESP_LOGI(TAG, "[Vol-] %s", key_types[evt->type]);
             if(key_types[evt->type] == key_types[2]){
-                press_pointer(5);
+                on_pressed(5);
             }
             break;
         case INPUT_KEY_USER_ID_VOLUP:
             ESP_LOGI(TAG, "[Vol+] %s", key_types[evt->type]);
             if(key_types[evt->type] == key_types[2]){
-                press_pointer(6);
+                on_pressed(6);
                 }
             break;
         default:
