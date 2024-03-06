@@ -16,6 +16,7 @@
 #include "clock/clock_man.h"
 #include "buttons/button_man.h"
 #include "threads/thread_man.h"
+#include "interface/user_interface.h"
 
 // low rate mp3 audio
 extern const uint8_t lr_mp3_start[] asm("_binary_music_16b_2c_8000hz_mp3_start");
@@ -33,16 +34,13 @@ void display() {
     display_time();
 }
 
-void kebab(int a) {
-    printf("kebab %d\n", a);
-}
-
 void app_main(void) {
-    // lcd_init();
-    button_han_init(kebab);
+    lcd_init();
     time_init();
+    menu_start();
+    button_han_init(handle_menu);
 
-    start_thread("display_time", display);
+   // start_thread("display_time", display);
 
     // struct DateTime dt;
     // char buffer[20];
