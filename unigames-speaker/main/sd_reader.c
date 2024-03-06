@@ -13,6 +13,9 @@ char *url;
 
 static esp_err_t input_key_service_cb(periph_service_handle_t handle, periph_service_event_t *evt, void *ctx)
 {
+    /* Handle touch pad events
+           to start, pause, resume, finish current song and adjust volume
+        */
     audio_board_handle_t board_handle = (audio_board_handle_t) ctx;
     int player_volume;
     audio_hal_get_volume(board_handle->audio_hal, &player_volume);
@@ -43,7 +46,7 @@ static esp_err_t input_key_service_cb(periph_service_handle_t handle, periph_ser
             case INPUT_KEY_USER_ID_SET:
                 ESP_LOGI(TAG, "[ * ] [Set] input key event");
                 ESP_LOGI(TAG, "[ * ] Stopped, advancing to the next song");
-                *url = NULL;
+                char *url = NULL;
                 audio_pipeline_stop(pipeline);
                 audio_pipeline_wait_for_stop(pipeline);
                 audio_pipeline_terminate(pipeline);
@@ -89,7 +92,7 @@ void sdcard_url_save_cb(void *user_data, char *url)
 
 esp_periph_set_handle_t set;
 
-void audio_player_init(i2s_stream_cfg_t i2s_cfg) {
+void audio_player_init(char *desired_mp3_file) {
     esp_log_level_set("*", ESP_LOG_WARN);
     esp_log_level_set(TAG, ESP_LOG_INFO);
 
@@ -124,6 +127,7 @@ void audio_player_init(i2s_stream_cfg_t i2s_cfg) {
     mem_assert(pipeline);
 
     ESP_LOGI(TAG, "[4.1] Create i2s stream to write data to codec chip");
+    i2s_stream_cfg_t i2s_cfg = I2S_STREAM_CFG_DEFAULT();
     i2s_cfg.type = AUDIO_STREAM_WRITER;
     i2s_stream_writer = i2s_stream_init(&i2s_cfg);
     i2s_stream_set_clk(i2s_stream_writer, 48000, 16, 2);
@@ -137,12 +141,14 @@ void audio_player_init(i2s_stream_cfg_t i2s_cfg) {
     rsp_handle = rsp_filter_init(&rsp_cfg);
 
     ESP_LOGI(TAG, "[4.4] Create fatfs stream to read data from sdcard");
-    char *url = NULL;
-    sdcard_list_current(sdcard_list_handle, &url);
+    //char *url = NULL;
+    //sdcard_list_current(sdcard_list_handle, &url);
     fatfs_stream_cfg_t fatfs_cfg = FATFS_STREAM_CFG_DEFAULT();
     fatfs_cfg.type = AUDIO_STREAM_READER;
     fatfs_stream_reader = fatfs_stream_init(&fatfs_cfg);
-    audio_element_set_uri(fatfs_stream_reader, url);
+    //audio_element_set_uri(fatfs_stream_reader, url);
+    audio_element_set_uri(fatfs_stream_reader, desired_mp3_file);
+    //printf("URL: %s\n", url);
 
     ESP_LOGI(TAG, "[4.5] Register all elements to audio pipeline");
     audio_pipeline_register(pipeline, fatfs_stream_reader, "file");

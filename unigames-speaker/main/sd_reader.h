@@ -28,7 +28,7 @@
 #include "sdcard_list.h"
 #include "sdcard_scan.h"
 
-void audio_player_init(i2s_stream_cfg_t i2s_cfg);
+void audio_player_init(char *desired_mp3_file);
 void audio_player_play();
 void audio_player_cleanup();
 

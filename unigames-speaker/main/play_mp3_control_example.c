@@ -26,7 +26,7 @@ extern const uint8_t hr_mp3_end[]   asm("_binary_music_16b_2c_44100hz_mp3_end");
 
 void app_main(void)
 {
-    i2s_stream_cfg_t i2s_cfg = I2S_STREAM_CFG_DEFAULT();
-    audio_player_init(i2s_cfg);
+    char *slebba = "file://sdcard/TIMMERCLUB.mp3";
+    audio_player_init(slebba);
     audio_player_play();
 }
