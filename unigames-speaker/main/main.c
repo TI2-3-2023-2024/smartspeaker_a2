@@ -33,13 +33,19 @@ void display() {
     display_time();
 }
 
+void audio_test(void);
+
 void app_main(void) {
-    lcd_init();
     time_init();
+    lcd_init();
     button_han_init();
+
+    // lcd_centerwrite("0x27" , 2, false);
+    // lcd_centerwrite("0x27" , 1, false);
 
     start_thread("display_time", display);
 
+    // audio_test();
     // struct DateTime dt;
     // char buffer[20];
 
@@ -57,4 +63,25 @@ void app_main(void) {
     //     wait(60 - dt.second);
     // }
     
+}
+
+void audio_test(void) {
+
+    file_marker_t hr_mp3 = {
+        .start = hr_mp3_start,
+        .end = hr_mp3_end,
+    };
+
+    // get the i2s stream configuration
+#if defined CONFIG_ESP32_C3_LYRA_V2_BOARD
+    i2s_stream_cfg_t i2s_cfg = I2S_STREAM_PDM_TX_CFG_DEFAULT();
+#else
+    i2s_stream_cfg_t i2s_cfg = I2S_STREAM_CFG_DEFAULT();
+#endif
+
+    int a = 6969;
+    char* b = "sjoerd";
+    audio_component_t player = init_audio(i2s_cfg);
+    set_volume(&player, 100);
+    play_audio(&player, &hr_mp3);
 }
