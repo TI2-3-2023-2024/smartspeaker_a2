@@ -35,10 +35,16 @@ void display() {
 }
 
 void app_main(void) {
-    lcd_init();
-    time_init();
-    menu_start();
-    button_han_init(handle_menu);
+
+#if defined CONFIG_ESP32_C3_LYRA_V2_BOARD
+    i2s_stream_cfg_t i2s_cfg = I2S_STREAM_PDM_TX_CFG_DEFAULT();
+#else
+    i2s_stream_cfg_t i2s_cfg = I2S_STREAM_CFG_DEFAULT();
+#endif
+
+    audio_component_t player = init_audio(i2s_cfg);
+    char* bob = "file://sdcard/TIMMERCLUB.mp3";
+    play_audio(&player, bob);
 
    // start_thread("display_time", display);
 

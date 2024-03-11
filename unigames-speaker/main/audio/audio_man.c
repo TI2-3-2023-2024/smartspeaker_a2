@@ -20,6 +20,17 @@ int mp3_music_read_cb(audio_element_handle_t el, char *buf, int len, TickType_t 
     return read_size;
 }
 
+void sdcard_url_save_cb(void *user_data, char *url)
+{
+    playlist_operator_handle_t sdcard_handle = (playlist_operator_handle_t)user_data;
+    esp_err_t ret = sdcard_list_save(sdcard_handle, url);
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "Fail to save sdcard url to sdcard playlist");
+    }
+}
+
+esp_periph_set_handle_t set;
+
 /// @brief the audio pipeline is initialized and the audio components are registered, always use this function
 /// to initialize the audio pipeline
 /// @param i2s_cfg hardware configuration for the i2s stream
@@ -27,7 +38,8 @@ int mp3_music_read_cb(audio_element_handle_t el, char *buf, int len, TickType_t 
 audio_component_t init_audio(i2s_stream_cfg_t i2s_cfg) {
 
     audio_pipeline_handle_t pipeline;
-    audio_element_handle_t i2s_stream_writer, mp3_decoder;
+    audio_element_handle_t i2s_stream_writer, mp3_decoder, fatfs_stream_reader, rsp_handle;
+    playlist_operator_handle_t sdcard_list_operator = NULL;
     audio_event_iface_handle_t evt;
 
     esp_log_level_set("*", ESP_LOG_WARN);
@@ -47,11 +59,15 @@ audio_component_t init_audio(i2s_stream_cfg_t i2s_cfg) {
     mp3_decoder = mp3_decoder_init(&mp3_cfg);
     audio_element_set_read_cb(mp3_decoder, mp3_music_read_cb, NULL);
 
+    rsp_filter_cfg_t rsp_cfg = DEFAULT_RESAMPLE_FILTER_CONFIG();
+    rsp_handle = rsp_filter_init(&rsp_cfg);
+
     i2s_cfg.type = AUDIO_STREAM_WRITER;
     i2s_stream_writer = i2s_stream_init(&i2s_cfg);
 
     audio_pipeline_register(pipeline, mp3_decoder, "mp3");
     audio_pipeline_register(pipeline, i2s_stream_writer, "i2s");
+    audio_pipeline_register(pipeline, rsp_handle, "filter");
 
     const char *link_tag[2] = {"mp3", "i2s"};
     audio_pipeline_link(pipeline, &link_tag[0], 2);
@@ -60,6 +76,11 @@ audio_component_t init_audio(i2s_stream_cfg_t i2s_cfg) {
     esp_periph_set_handle_t set = esp_periph_set_init(&periph_cfg);
 
     audio_board_key_init(set);
+    audio_board_sdcard_init(set, SD_MODE_1_LINE);
+
+    sdcard_list_create(&sdcard_list_operator);
+    sdcard_scan(sdcard_url_save_cb, "/sdcard", 0, (const char *[]) {"mp3"}, 1, sdcard_list_operator);
+    sdcard_list_show(sdcard_list_operator);
 
     audio_event_iface_cfg_t evt_cfg = AUDIO_EVENT_IFACE_DEFAULT_CFG();
     evt = audio_event_iface_init(&evt_cfg);
@@ -69,12 +90,19 @@ audio_component_t init_audio(i2s_stream_cfg_t i2s_cfg) {
     audio_event_iface_set_listener(esp_periph_set_get_event_iface(set), evt);
     //ESP_LOGI(TAG, "Audio Pipeline created");
 
+    fatfs_stream_cfg_t fatfs_cfg = FATFS_STREAM_CFG_DEFAULT();
+    fatfs_cfg.type = AUDIO_STREAM_READER;
+    fatfs_stream_reader = fatfs_stream_init(&fatfs_cfg);
+
+    audio_pipeline_register(pipeline, fatfs_stream_reader, "file");
+
     audio_component_t player = {
         .pipeline = pipeline,
         .i2s_stream_writer = i2s_stream_writer,
         .mp3_decoder = mp3_decoder,
         .evt = evt,
         .audio_board = board_handle,
+        .fatfs_stream_reader = fatfs_stream_reader,
         .volume = player_volume
     };
 
@@ -90,8 +118,8 @@ void set_file_marker(file_marker_t *marker) {
 /// @brief the audio pipeline is started and the audio is played
 /// @param player the player whose audio pipeline is to be started
 /// @param marker the marker that points to the audio file to be played
-void play_audio(audio_component_t *player, file_marker_t *marker) {
-    set_file_marker(marker);
+void play_audio(audio_component_t *player, char *uri) {
+    audio_element_set_uri(player->fatfs_stream_reader, uri);
     audio_pipeline_run(player->pipeline);
 }
 
@@ -163,5 +191,12 @@ void resume_audio(audio_component_t *player) {
 void set_volume(audio_component_t *player, int volume) {
     player->volume = volume;
     audio_hal_set_volume(player->audio_board->audio_hal, player->volume);
+}
+
+/// @brief plays an audio file from the sd card
+/// @param player player whose audio pipeline is to be adjusted
+/// @param uri file destination of the audio file to be played
+void set_uri_sd_card(audio_component_t *player, char *uri) {
+    audio_element_set_uri(player->fatfs_stream_reader, uri);
 }
 
