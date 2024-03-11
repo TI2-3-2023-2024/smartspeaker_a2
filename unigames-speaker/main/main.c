@@ -84,9 +84,7 @@ void audio_test(audio_component_t player) {
         .start = hr_mp3_start,
         .end = hr_mp3_end,
     };
-
-    int a = 6969;
-    char* b = "sjoerd";
+    
     set_volume(&player, 100);
     play_audio(&player, &hr_mp3);
 }
