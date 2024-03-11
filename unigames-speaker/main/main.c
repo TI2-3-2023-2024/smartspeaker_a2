@@ -10,6 +10,7 @@
 */
 #include <stdio.h>
 #include "audio/audio_man.h"
+#include "audio/audio_http.h"
 #include "lcd/lcd_man.h"
 #include "time/time_man.h"
 #include "time/datetime.h"
@@ -34,29 +35,42 @@ void display() {
     display_time();
 }
 
+audio_component_t audio_init(void);
+void audio_test(audio_component_t player);
+
 void app_main(void) {
-    lcd_init();
     time_init();
-    menu_start();
-    button_han_init(handle_menu);
+    audio_component_t player = audio_init();
+    lcd_init();
+
+    audio_http_init();
+
+    // menu_start();
+    // button_han_init(handle_menu);
 
    // start_thread("display_time", display);
 
-    // struct DateTime dt;
-    // char buffer[20];
+    // audio_test(player);
+}
 
-    // lcd_centerwrite("Time:", 1, false);
+audio_component_t audio_init(void) {
+    // get the i2s stream configuration
+#if defined CONFIG_ESP32_C3_LYRA_V2_BOARD
+    i2s_stream_cfg_t i2s_cfg = I2S_STREAM_PDM_TX_CFG_DEFAULT();
+#else
+    i2s_stream_cfg_t i2s_cfg = I2S_STREAM_CFG_DEFAULT();
+#endif
+    audio_component_t player = init_audio(i2s_cfg);
+    return player;
+}
 
-    // while (true) {
-    //     dt = get_time();
-    //     sprintf(buffer, "%02d:%02d", dt.hour, dt.minute);
-    //     lcd_centerwrite(buffer, 2, false);
+void audio_test(audio_component_t player) {
 
-    //     if (dt.minute == 0 || dt.minute == 30) {
-    //         tell_time(dt);
-    //     }
-
-    //     wait(60 - dt.second);
-    // }
+    file_marker_t hr_mp3 = {
+        .start = hr_mp3_start,
+        .end = hr_mp3_end,
+    };
     
+    set_volume(&player, 100);
+    play_audio(&player, &hr_mp3);
 }
