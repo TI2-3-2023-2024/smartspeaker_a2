@@ -16,6 +16,7 @@
 #include "clock/clock_man.h"
 #include "buttons/button_man.h"
 #include "threads/thread_man.h"
+#include "interface/user_interface.h"
 
 // low rate mp3 audio
 extern const uint8_t lr_mp3_start[] asm("_binary_music_16b_2c_8000hz_mp3_start");
@@ -40,31 +41,13 @@ void app_main(void) {
     time_init();
     audio_component_t player = audio_init();
     lcd_init();
-    button_han_init();
 
-    // lcd_centerwrite("0x27" , 2, false);
-    // lcd_centerwrite("0x27" , 1, false);
+    menu_start();
+    button_han_init(handle_menu);
 
-    start_thread("display_time", display);
+   // start_thread("display_time", display);
 
     audio_test(player);
-    // struct DateTime dt;
-    // char buffer[20];
-
-    // lcd_centerwrite("Time:", 1, false);
-
-    // while (true) {
-    //     dt = get_time();
-    //     sprintf(buffer, "%02d:%02d", dt.hour, dt.minute);
-    //     lcd_centerwrite(buffer, 2, false);
-
-    //     if (dt.minute == 0 || dt.minute == 30) {
-    //         tell_time(dt);
-    //     }
-
-    //     wait(60 - dt.second);
-    // }
-    
 }
 
 audio_component_t audio_init(void) {

@@ -3,6 +3,7 @@ set(COMPONENT_SRCS
     ./audio/audio_man.c 
     ./buttons/button_man.c ./buttons/button_tasks.c 
     ./clock/clock_man.c 
+    ./interface/user_interface.c
     ./lcd/lcd_man.c 
     ./threads/thread_man.c
     ./time/time_man.c 

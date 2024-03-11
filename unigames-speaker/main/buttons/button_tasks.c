@@ -1,6 +1,10 @@
 #include "../clock/clock_man.h"
 #include "../time/time_man.h"
 
+/// @brief this is a switchcase in which you can define what happens when a button is pressed.
+/// @param a 
+/// @param case ... is where you can place a pointer to the function you want the button to call,look at button_man.c to see which button calls what case.
+
 void pressed(int a) { 
     switch(a){
         case 1:
