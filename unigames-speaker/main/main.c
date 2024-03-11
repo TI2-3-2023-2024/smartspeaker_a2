@@ -17,6 +17,7 @@
 #include "buttons/button_man.h"
 #include "threads/thread_man.h"
 #include "interface/user_interface.h"
+#include "microphone/mic_man.h"
 
 // low rate mp3 audio
 extern const uint8_t lr_mp3_start[] asm("_binary_music_16b_2c_8000hz_mp3_start");
@@ -41,6 +42,7 @@ void app_main(void) {
     time_init();
     audio_component_t player = audio_init();
     lcd_init();
+    mic_init();
 
     menu_start();
     button_han_init(handle_menu);
