@@ -42,8 +42,11 @@ void app_main(void) {
     i2s_stream_cfg_t i2s_cfg = I2S_STREAM_CFG_DEFAULT();
 #endif
 
-    audio_component_t player = init_audio(i2s_cfg);
-    char* bob = "file://sdcard/TIMMERCLUB.mp3";
+    //audio_component_t player = init_audio(i2s_cfg);
+    char* bob = "/sdcard/goofy Ahh trap.mp3";
+    //set_uri_sd_card(&player, bob);
+    audio_component_t player = init_audio();
+    set_volume(&player, 85);
     play_audio(&player, bob);
 
    // start_thread("display_time", display);
