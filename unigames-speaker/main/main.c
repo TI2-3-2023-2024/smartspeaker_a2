@@ -15,6 +15,7 @@
 #include "time/datetime.h"
 #include "clock/clock_man.h"
 #include "buttons/button_man.h"
+#include "buttons/button_tasks.h"
 #include "threads/thread_man.h"
 #include "interface/user_interface.h"
 
@@ -30,13 +31,20 @@ extern const uint8_t mr_mp3_end[]   asm("_binary_music_16b_2c_22050hz_mp3_end");
 extern const uint8_t hr_mp3_start[] asm("_binary_music_16b_2c_44100hz_mp3_start");
 extern const uint8_t hr_mp3_end[]   asm("_binary_music_16b_2c_44100hz_mp3_end");
 
-void display(audio_component_t player) {
+audio_component_t player;
+
+void display() {
     display_time(player);
+}
+
+void kebab(int a) {
+    printf("kebab %d\n", a);
 }
 
 void app_main(void) {
     time_init();
     lcd_init();
+    // button_han_init(kebab);
 
 #if defined CONFIG_ESP32_C3_LYRA_V2_BOARD
     i2s_stream_cfg_t i2s_cfg = I2S_STREAM_PDM_TX_CFG_DEFAULT();
@@ -44,6 +52,9 @@ void app_main(void) {
     i2s_stream_cfg_t i2s_cfg = I2S_STREAM_CFG_DEFAULT();
 #endif
 
-   start_thread("display_time", display(player));
+    player = init_audio(i2s_cfg);
+    set_player(player);
+
+    start_thread("display_time", display);
     
 }
