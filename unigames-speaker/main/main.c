@@ -30,11 +30,14 @@ extern const uint8_t mr_mp3_end[]   asm("_binary_music_16b_2c_22050hz_mp3_end");
 extern const uint8_t hr_mp3_start[] asm("_binary_music_16b_2c_44100hz_mp3_start");
 extern const uint8_t hr_mp3_end[]   asm("_binary_music_16b_2c_44100hz_mp3_end");
 
-void display() {
-    display_time();
+void display(audio_component_t player) {
+    display_time(player);
 }
 
 void app_main(void) {
+    time_init();
+    lcd_init();
+    button_han_init();
 
 #if defined CONFIG_ESP32_C3_LYRA_V2_BOARD
     i2s_stream_cfg_t i2s_cfg = I2S_STREAM_PDM_TX_CFG_DEFAULT();
@@ -43,26 +46,9 @@ void app_main(void) {
 #endif
 
     audio_component_t player = init_audio(i2s_cfg);
-    char* bob = "file://sdcard/TIMMERCLUB.mp3";
-    play_audio(&player, bob);
+    // char* bob = "file://sdcard/TIMMERCLUB.mp3";
+    // play_audio(&player, bob);
 
-   // start_thread("display_time", display);
-
-    // struct DateTime dt;
-    // char buffer[20];
-
-    // lcd_centerwrite("Time:", 1, false);
-
-    // while (true) {
-    //     dt = get_time();
-    //     sprintf(buffer, "%02d:%02d", dt.hour, dt.minute);
-    //     lcd_centerwrite(buffer, 2, false);
-
-    //     if (dt.minute == 0 || dt.minute == 30) {
-    //         tell_time(dt);
-    //     }
-
-    //     wait(60 - dt.second);
-    // }
+   start_thread("display_time", display(player));
     
 }
