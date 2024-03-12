@@ -8,13 +8,15 @@
    software is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
    CONDITIONS OF ANY KIND, either express or implied.
 */
-
 #include <stdio.h>
 #include "audio/audio_man.h"
 #include "lcd/lcd_man.h"
 #include "time/time_man.h"
 #include "time/datetime.h"
 #include "clock/clock_man.h"
+#include "buttons/button_man.h"
+#include "threads/thread_man.h"
+#include "interface/user_interface.h"
 
 // low rate mp3 audio
 extern const uint8_t lr_mp3_start[] asm("_binary_music_16b_2c_8000hz_mp3_start");
@@ -28,57 +30,20 @@ extern const uint8_t mr_mp3_end[]   asm("_binary_music_16b_2c_22050hz_mp3_end");
 extern const uint8_t hr_mp3_start[] asm("_binary_music_16b_2c_44100hz_mp3_start");
 extern const uint8_t hr_mp3_end[]   asm("_binary_music_16b_2c_44100hz_mp3_end");
 
-void wait(int seconds);
-void audio_test(void);
+void display(audio_component_t player) {
+    display_time(player);
+}
 
 void app_main(void) {
+    time_init();
     lcd_init();
 
-    lcd_centerwrite("test", 1, false);
-
-    audio_test();
-
-    // struct DateTime dt;
-    // char buffer[20];
-
-    // lcd_centerwrite("Time:", 1, false);
-
-    // while (true) {
-    //     dt = get_time();
-    //     sprintf(buffer, "%02d:%02d", dt.hour, dt.minute);
-    //     lcd_centerwrite(buffer, 2, false);
-
-    //     if (dt.minute == 0 || dt.minute == 30) {
-    //         tell_time(dt.hour, dt.minute);
-    //     }
-
-    //     wait(60 - dt.second);
-    // }
-    
-}
-
-void wait(int seconds) {
-    const TickType_t delay_ms = seconds * 1000;
-    vTaskDelay(delay_ms / portTICK_PERIOD_MS);
-}
-
-void audio_test(void) {
-
-    file_marker_t hr_mp3 = {
-        .start = hr_mp3_start,
-        .end = hr_mp3_end,
-    };
-
-    // get the i2s stream configuration
 #if defined CONFIG_ESP32_C3_LYRA_V2_BOARD
     i2s_stream_cfg_t i2s_cfg = I2S_STREAM_PDM_TX_CFG_DEFAULT();
 #else
     i2s_stream_cfg_t i2s_cfg = I2S_STREAM_CFG_DEFAULT();
 #endif
 
-    int a = 6969;
-    char* b = "sjoerd";
-    audio_component_t player = init_audio(i2s_cfg);
-    set_volume(&player, 100);
-    play_audio(&player, &hr_mp3);
+   start_thread("display_time", display(player));
+    
 }

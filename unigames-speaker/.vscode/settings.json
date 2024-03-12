@@ -4,9 +4,20 @@
         "board/esp32-bridge.cfg"
     ],
     "idf.flashType": "UART",
-    "idf.portWin": "COM5",
+    "idf.portWin": "COM9",
     "files.associations": {
         "inttypes.h": "c",
-        "custom_audio.h": "c"
+        "custom_audio.h": "c",
+        "datetime.h": "c",
+        "esp_log.h": "c",
+        "time_man.h": "c",
+        "xutility": "c",
+        "chrono": "c",
+        "lcd_man.h": "c",
+        "stdio.h": "c",
+        "iomanip": "c",
+        "xloctime": "c",
+        "string.h": "c",
+        "board.h": "c"
     }
 }
