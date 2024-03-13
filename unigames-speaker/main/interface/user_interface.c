@@ -133,6 +133,7 @@ void handle_menu(int key) {
 
     case REC_BUTTON_LONG_PRESSED_ID:
         write_time();
+        tell_time(get_time());
         return;
         break;
     

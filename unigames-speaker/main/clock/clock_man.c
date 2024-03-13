@@ -7,6 +7,7 @@
 #include "../time/time_man.h"
 #include "../lcd/lcd_man.h"
 #include "../audio/audio_man.h"
+#include "../audio/player.h"
 
 static const char *TAG = "clock_man";
 
@@ -20,7 +21,7 @@ void done() {
     ESP_LOGI(TAG, "tell_time");
 }
 
-void tell_time(struct DateTime dt, audio_component_t player) {
+void tell_time(struct DateTime dt) {
     int amount = 3;
     char** buffer = malloc(amount * sizeof(char*)); // Allocate memory for array of pointers
     if (buffer == NULL) {
@@ -56,7 +57,7 @@ void tell_time(struct DateTime dt, audio_component_t player) {
     xTaskCreate(play_multiple_audio_task, "play_multiple_audio_task", 8192, (void *) playlist, 5, &xHandle);
 }
 
-void display_time(audio_component_t player) {
+void display_time() {
     char buffer[20];
     struct DateTime dt;
 
@@ -70,7 +71,7 @@ void display_time(audio_component_t player) {
         // if (dt.minute == 0 || dt.minute == 30) {
         //     tell_time(dt, player);
         // }
-        tell_time(dt, player);
+        tell_time(dt);
 
         wait(60 - dt.second);
     }
