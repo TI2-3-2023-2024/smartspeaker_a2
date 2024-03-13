@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "audio/audio_man.h"
+#include "audio/player.h"
 #include "lcd/lcd_man.h"
 #include "time/time_man.h"
 #include "time/datetime.h"
@@ -21,41 +22,32 @@
 #include "interface/user_interface.h"
 #include "microphone/mic_man.h"
 
-TaskHandle_t xHandle = NULL;
+audio_component_t player;
 
-void test() {
-    printf("Hello World\n");
+void display() {
+    display_time();
 }
+
+audio_component_t audio_init(void);
+void audio_test(void);
 
 void app_main(void) {
     time_init();
-    //audio_component_t player = audio_init();
     lcd_init();
-
-    // time_init();
-    // audio_component_t player = audio_init();
-    // lcd_init();
-    mic_init();
+    // mic_init();
 
     menu_start();
     button_han_init(handle_menu);
 
-   // start_thread("display_time", display);
+#if defined CONFIG_ESP32_C3_LYRA_V2_BOARD
+    i2s_stream_cfg_t i2s_cfg = I2S_STREAM_PDM_TX_CFG_DEFAULT();
+#else
+    i2s_stream_cfg_t i2s_cfg = I2S_STREAM_CFG_DEFAULT();
+#endif
 
-    // audio_test(player);
-
+    player = init_audio(i2s_cfg);
+    set_player(player);
     set_volume(&player, 100);
-    play_audio(&player, &hr_mp3);
 
-    audio_component_t player = init_audio();
-    set_volume(&player, 85);
-
-    playlist_t *playlist = malloc(sizeof(playlist_t) + 2 * sizeof(char*));
-    playlist->player = player;
-    playlist->number_of_files = 3;
-    playlist->on_finished = test;
-    playlist->file_uris[0] = "/sdcard/peter.mp3";
-    playlist->file_uris[1] = "/sdcard/TIMMERCLUB.mp3";
-
-    xTaskCreate(play_multiple_audio_task, "play_multiple_audio_task", 8192, (void *) playlist, 5, &xHandle);
+    // start_thread("display_time", display);
 }

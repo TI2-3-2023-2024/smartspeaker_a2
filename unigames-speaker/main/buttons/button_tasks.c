@@ -34,7 +34,6 @@ void pressed(int a) {
         break;
         case 7:
         printf("Klok afspelen\n");
-        tell_time(get_time(), player);
         break;
         case 8:
         printf("Deze knop heeft geen functie\n");
