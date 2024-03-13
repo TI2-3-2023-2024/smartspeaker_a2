@@ -13,6 +13,9 @@
 #define MENU_SUB_1_1_ID 4 // russian roulette
 #define MENU_SUB_1_2_ID 5 // coin flip
 #define MENU_SUB_2_0_ID 7 // instellingen beschrijving
+#define MENU_SUB_1_0_0_ID 8 // Bas wacht op een vraag
+#define MENU_SUB_1_0_1_ID 9 // Bas denkt na...
+#define MENU_SUB_1_0_2_ID 10 // Bas geeft antwoord
 
 #define REC_BUTTON_ID 1
 #define SET_BUTTON_ID 2
@@ -27,6 +30,7 @@ typedef struct menu_item {
     char* text[MAX_LCD_LINES];
 } menu_item_t;
 
+//Array with directions for the interface
 menu_item_t menu[] = {
     {
         MENU_MAIN_0_ID,
@@ -48,7 +52,7 @@ menu_item_t menu[] = {
         {
             //Sub screens for 1
             MENU_SUB_1_0_ID,
-            {MENU_MAIN_1_ID, MENU_SUB_1_1_ID, MENU_SUB_1_0_ID, MENU_MAIN_1_ID},
+            {MENU_SUB_1_0_ID, MENU_SUB_1_1_ID, MENU_SUB_1_0_0_ID, MENU_MAIN_1_ID}, //edit enter
             {"===UNIGAMES===", "Talking Bas", "", ""}
         },
         {
@@ -74,9 +78,25 @@ menu_item_t menu[] = {
             MENU_SUB_2_0_ID,
             {MENU_SUB_2_0_ID, MENU_SUB_2_0_ID, MENU_SUB_2_0_ID, MENU_MAIN_2_ID},
             {"===INSTELLINGEN===", "Hier kan je de", "instellingen van de", " klok aanpassen."}
-        }
-
-
+        },
+        {
+            //Sub screen for 1_0
+            MENU_SUB_1_0_0_ID,
+            {MENU_SUB_1_0_0_ID, MENU_SUB_1_0_0_ID, MENU_SUB_1_0_1_ID, MENU_SUB_1_0_ID},
+            {"===TALKING BAS===", "Bas wacht op een", "vraag...", ""}
+        },
+        {
+            //Sub screen for 1_0_0
+            MENU_SUB_1_0_1_ID,
+            {MENU_SUB_1_0_1_ID, MENU_SUB_1_0_1_ID, MENU_SUB_1_0_2_ID, MENU_SUB_1_0_1_ID},
+            {"===TALKING BAS===", "Bas denkt na...", "", ""}
+        },
+        {
+            //Sub screen for 1_0_1
+            MENU_SUB_1_0_2_ID,
+            {MENU_SUB_1_0_2_ID, MENU_SUB_1_0_2_ID, MENU_SUB_1_0_0_ID, MENU_SUB_1_0_0_ID},
+            {"===TALKING BAS===", "Bas geeft antwoord", "", ""}
+        },
 };
 
 static unsigned int current_menu_index = MENU_MAIN_0_ID;

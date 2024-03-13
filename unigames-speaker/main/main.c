@@ -28,6 +28,10 @@ void test() {
 }
 
 void app_main(void) {
+    time_init();
+    //audio_component_t player = audio_init();
+    lcd_init();
+
     // time_init();
     // audio_component_t player = audio_init();
     // lcd_init();
