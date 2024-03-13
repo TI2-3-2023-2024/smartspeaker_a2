@@ -16,6 +16,11 @@
         "lcd_man.h": "c",
         "stdio.h": "c",
         "iomanip": "c",
-        "xloctime": "c"
+        "xloctime": "c",
+        "string.h": "c",
+        "board.h": "c",
+        "xstring": "c",
+        "audio_man.h": "c",
+        "clock_man.h": "c"
     }
 }
