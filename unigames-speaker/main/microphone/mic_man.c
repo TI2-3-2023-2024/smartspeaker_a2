@@ -81,7 +81,6 @@ TimerHandle_t detection_timer;
 
 void timer_callbacked(TimerHandle_t xTimer) {
     // This function will be called when the timer expires
-    // Add your code here
     ESP_LOGI(TAG, "Timer elapsed");
     timerended = true;
 }

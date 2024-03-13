@@ -39,9 +39,9 @@ audio_component_t audio_init(void);
 void audio_test(audio_component_t player);
 
 void app_main(void) {
-    time_init();
-    audio_component_t player = audio_init();
-    lcd_init();
+    // time_init();
+    // audio_component_t player = audio_init();
+    // lcd_init();
     mic_init();
 
     menu_start();
@@ -49,7 +49,7 @@ void app_main(void) {
 
    // start_thread("display_time", display);
 
-    audio_test(player);
+    // audio_test(player);
 }
 
 audio_component_t audio_init(void) {
