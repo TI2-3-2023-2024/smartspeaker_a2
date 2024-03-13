@@ -47,9 +47,5 @@ void app_main(void) {
     set_player(player);
     set_volume(&player, 85);
 
-    tell_time(get_time(), player);
-
-    // display();
-
-    // start_thread("display_time", display);
+    start_thread("display_time", display);
 }
