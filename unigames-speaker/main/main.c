@@ -26,8 +26,34 @@ void display() {
     display_time(player);
 }
 
-void kebab(int a) {
-    printf("kebab %d\n", a);
+void react(int a) {
+    switch(a){
+        case 1:
+        printf("tab omhoog\n");
+        break;
+        case 2:
+        printf("terug\n");
+        break;
+        case 3:
+        printf("ENTER\n");
+        break;
+        case 4:
+        printf("tab omlaag\n");
+        break;
+        case 5:
+        printf("volume omlaag\n");
+        break;
+        case 6:
+        printf("volume omhoog\n");
+        break;
+        case 7:
+        printf("Klok afspelen\n");
+        tell_time(get_time(), player);
+        break;
+        case 8:
+        printf("Deze knop heeft geen functie\n");
+        break;
+    } 
 }
 audio_component_t audio_init(void);
 void audio_test(audio_component_t player);
@@ -35,7 +61,7 @@ void audio_test(audio_component_t player);
 void app_main(void) {
     time_init();
     lcd_init();
-    // button_han_init(kebab);
+    button_han_init(react);
 
 #if defined CONFIG_ESP32_C3_LYRA_V2_BOARD
     i2s_stream_cfg_t i2s_cfg = I2S_STREAM_PDM_TX_CFG_DEFAULT();
@@ -47,5 +73,5 @@ void app_main(void) {
     set_player(player);
     set_volume(&player, 100);
 
-    start_thread("display_time", display);
+    // start_thread("display_time", display);
 }
