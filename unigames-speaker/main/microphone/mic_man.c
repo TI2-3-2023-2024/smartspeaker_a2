@@ -21,6 +21,7 @@ static const char *TAG = "GOERTZEL-EXAMPLE";
 #define AUDIO_SAMPLE_RATE 48000
 #define DETECTION_TIMEOUT_MS 2000
 
+TimerHandle_t detection_timer;
 bool timerended = false;
 
 // Define frequencies for Goertzel detection
