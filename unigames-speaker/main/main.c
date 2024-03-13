@@ -15,59 +15,24 @@
 #include "time/datetime.h"
 #include "clock/clock_man.h"
 #include "buttons/button_man.h"
+#include "buttons/button_tasks.h"
 #include "threads/thread_man.h"
 #include "interface/user_interface.h"
 
-// low rate mp3 audio
-extern const uint8_t lr_mp3_start[] asm("_binary_music_16b_2c_8000hz_mp3_start");
-extern const uint8_t lr_mp3_end[]   asm("_binary_music_16b_2c_8000hz_mp3_end");
 
-// medium rate mp3 audio
-extern const uint8_t mr_mp3_start[] asm("_binary_music_16b_2c_22050hz_mp3_start");
-extern const uint8_t mr_mp3_end[]   asm("_binary_music_16b_2c_22050hz_mp3_end");
-
-// high rate mp3 audio
-extern const uint8_t hr_mp3_start[] asm("_binary_music_16b_2c_44100hz_mp3_start");
-extern const uint8_t hr_mp3_end[]   asm("_binary_music_16b_2c_44100hz_mp3_end");
+audio_component_t player;
 
 void display() {
-    display_time();
+    display_time(player);
 }
 
+void kebab(int a) {
+    printf("kebab %d\n", a);
+}
 audio_component_t audio_init(void);
 void audio_test(audio_component_t player);
 
 void app_main(void) {
-    time_init();
-    audio_component_t player = audio_init();
-    lcd_init();
-
-    menu_start();
-    button_han_init(handle_menu);
-
-   // start_thread("display_time", display);
-
-    audio_test(player);
-}
-
-audio_component_t audio_init(void) {
-    // get the i2s stream configuration
-#if defined CONFIG_ESP32_C3_LYRA_V2_BOARD
-    i2s_stream_cfg_t i2s_cfg = I2S_STREAM_PDM_TX_CFG_DEFAULT();
-#else
-    i2s_stream_cfg_t i2s_cfg = I2S_STREAM_CFG_DEFAULT();
-#endif
-    audio_component_t player = init_audio(i2s_cfg);
-    return player;
-}
-
-void audio_test(audio_component_t player) {
-
-    file_marker_t hr_mp3 = {
-        .start = hr_mp3_start,
-        .end = hr_mp3_end,
-    };
-    
-    set_volume(&player, 100);
-    play_audio(&player, &hr_mp3);
+    audio_component_t player = init_audio();
+    set_volume(&player, 85);
 }
