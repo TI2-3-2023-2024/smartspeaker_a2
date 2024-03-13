@@ -34,7 +34,7 @@ void audio_test(audio_component_t player);
 
 void app_main(void) {
     time_init();
-    // lcd_init();
+    lcd_init();
     // button_han_init(kebab);
 
 #if defined CONFIG_ESP32_C3_LYRA_V2_BOARD
@@ -45,7 +45,7 @@ void app_main(void) {
 
     player = init_audio(i2s_cfg);
     set_player(player);
-    set_volume(&player, 85);
+    set_volume(&player, 100);
 
     start_thread("display_time", display);
 }

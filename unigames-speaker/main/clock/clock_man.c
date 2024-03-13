@@ -65,7 +65,7 @@ void display_time(audio_component_t player) {
     while (true) {
         dt = get_time();
         sprintf(buffer, "%02d:%02d", dt.hour, dt.minute);
-        // lcd_centerwrite(buffer, 2, false);
+        lcd_centerwrite(buffer, 2, false);
 
         // if (dt.minute == 0 || dt.minute == 30) {
         //     tell_time(dt, player);
