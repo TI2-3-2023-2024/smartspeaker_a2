@@ -19,6 +19,7 @@
 #include "buttons/button_tasks.h"
 #include "threads/thread_man.h"
 #include "interface/user_interface.h"
+#include "microphone/mic_man.h"
 
 TaskHandle_t xHandle = NULL;
 
@@ -27,6 +28,21 @@ void test() {
 }
 
 void app_main(void) {
+    // time_init();
+    // audio_component_t player = audio_init();
+    // lcd_init();
+    mic_init();
+
+    menu_start();
+    button_han_init(handle_menu);
+
+   // start_thread("display_time", display);
+
+    // audio_test(player);
+
+    set_volume(&player, 100);
+    play_audio(&player, &hr_mp3);
+
     audio_component_t player = init_audio();
     set_volume(&player, 85);
 

@@ -8,10 +8,11 @@
 #include "esp_sleep.h"
 #include "nvs_flash.h"
 #include "protocol_examples_common.h"
-#include "esp_netif_sntp.h"
 #include "lwip/ip_addr.h"
 #include "esp_sntp.h"
 #include "datetime.h"
+#include "esp_netif_sntp.h"
+
 
 static const char *TAG = "time_man";
 // Time correction due to timezones
