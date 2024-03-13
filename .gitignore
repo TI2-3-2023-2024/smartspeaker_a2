@@ -5,3 +5,5 @@ unigames-speaker/sdkconfig
 unigames-speaker/.vscode
 unigames-speaker/CMakeLists.txt
 
+unigames-speaker/sdkconfig.old
+unigames-speaker/CMakeLists.txt
