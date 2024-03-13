@@ -21,6 +21,8 @@
         "board.h": "c",
         "xstring": "c",
         "audio_man.h": "c",
-        "clock_man.h": "c"
+        "clock_man.h": "c",
+        "button_tasks.h": "c",
+        "button_man.h": "c"
     }
 }

@@ -33,6 +33,23 @@ audio_component_t audio_init(void);
 void audio_test(audio_component_t player);
 
 void app_main(void) {
-    audio_component_t player = init_audio();
+    time_init();
+    // lcd_init();
+    // button_han_init(kebab);
+
+#if defined CONFIG_ESP32_C3_LYRA_V2_BOARD
+    i2s_stream_cfg_t i2s_cfg = I2S_STREAM_PDM_TX_CFG_DEFAULT();
+#else
+    i2s_stream_cfg_t i2s_cfg = I2S_STREAM_CFG_DEFAULT();
+#endif
+
+    player = init_audio(i2s_cfg);
+    set_player(player);
     set_volume(&player, 85);
+
+    tell_time(get_time(), player);
+
+    // display();
+
+    // start_thread("display_time", display);
 }
