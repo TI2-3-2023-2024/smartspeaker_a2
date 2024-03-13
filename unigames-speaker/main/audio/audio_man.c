@@ -94,6 +94,8 @@ audio_component_t init_audio() {
         .pipeline = pipeline,
         .i2s_stream_writer = i2s_stream_writer,
         .mp3_decoder = mp3_decoder,
+        .fatfs_stream_reader = fatfs_stream_reader,
+        .rsp_handle = NULL,
         .evt = evt,
         .audio_board = board_handle,
         .rsp_handle = rsp_handle,
@@ -101,7 +103,7 @@ audio_component_t init_audio() {
         .volume = player_volume
     };
 
-    return player;
+    return player; 
 }
 
 /// @brief the audio pipeline is started and the audio is played

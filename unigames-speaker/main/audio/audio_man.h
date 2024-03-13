@@ -4,19 +4,19 @@
 #include <string.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
-
 #include "esp_log.h"
 #include "nvs_flash.h"
-
+#include "sdkconfig.h"
 #include "audio_element.h"
 #include "audio_pipeline.h"
 #include "audio_event_iface.h"
 #include "audio_common.h"
 #include "fatfs_stream.h"
 #include "i2s_stream.h"
+//#ifdef CONFIG_AUDIO_SUPPORT_MP3_DECODER
 #include "mp3_decoder.h"
 #include "filter_resample.h"
-
+//#endif
 #include "esp_peripherals.h"
 #include "periph_sdcard.h"
 #include "periph_touch.h"
@@ -47,6 +47,12 @@ void play_audio(audio_component_t *player, char* url);
 void play_multiple_audio_task(void *pvParameters);
 void stop_audio(audio_component_t *player);
 void set_volume(audio_component_t *player, int volume);
-void pause_audio(audio_component_t *player);
+void play_audio(audio_component_t *player, char* uri);
+// void play_audio_with_event(audio_component_t *player, file_marker_t *marker, void(*on_finshed)());
+// void stop_audio(audio_component_t *player);
+// void set_volume(audio_component_t *player, int volume);
+// void pause_audio(audio_component_t *player);
+// void set_uri_sd_card(audio_component_t *player, char *uri);
+//void audio_player_play(audio_component_t *player);
 
 #endif

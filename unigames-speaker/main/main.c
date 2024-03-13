@@ -15,39 +15,24 @@
 #include "time/datetime.h"
 #include "clock/clock_man.h"
 #include "buttons/button_man.h"
+#include "buttons/button_tasks.h"
 #include "threads/thread_man.h"
 #include "interface/user_interface.h"
 
-#define PLAYLIST_SIZE 3
 
-TaskHandle_t xHandle = NULL;
+audio_component_t player;
 
 void display() {
-    display_time();
+    display_time(player);
 }
 
-void test() {
-    printf("Finished\n");
+void kebab(int a) {
+    printf("kebab %d\n", a);
 }
-
 audio_component_t audio_init(void);
 void audio_test(audio_component_t player);
 
 void app_main(void) {
     audio_component_t player = init_audio();
-
-    playlist_t *playlist = malloc(sizeof(playlist_t) + PLAYLIST_SIZE * sizeof(char*));
-
-    if (playlist != NULL) {
-        playlist->player = player;
-        playlist->number_of_files = 3;
-        playlist->on_finished = test;
-        playlist->file_uris[0] = "/sdcard/peter.mp3";
-        playlist->file_uris[1] = "/sdcard/TIMMERCLUB.mp3";
-        playlist->file_uris[2] = "/sdcard/goofy Ahh trap.mp3";
-    }
-    
     set_volume(&player, 85);
-    
-    xTaskCreate(play_multiple_audio_task, "play_multiple_audio_task", 8192, (void *) playlist, 5, &xHandle);
 }
