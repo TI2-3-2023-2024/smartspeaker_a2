@@ -13,15 +13,17 @@ void wait(unsigned int seconds) {
 }
 
 void tell_time(struct DateTime dt, audio_component_t player) {
-    char*   buffer;
+    char* buffer;
+    char temp[100];
 
     printf("%02d:%02d\n", dt.hour, dt.minute);
-    buffer = "file://sdcard/nl/time/61_het_is_nu.mp3";
+    sprintf(temp, "/sdcard/nl/clock/61_het_is_nu.mp3");
+    buffer = temp;
     play_audio(&player, buffer);
-    printf("%d_%d.mp3\n", dt.hour, dt.hour);
-    printf("62_uur.mp3\n");
+    sprintf(temp, "/sdcard/nl/clock/%d_%d.mp3", dt.hour, dt.hour);
+    sprintf(temp, "/sdcard/nl/clock/62_uur.mp3");
     if (dt.minute > 0) {
-        printf("%d_%d.mp3\n", dt.minute, dt.minute);
+        sprintf(temp, "/sdcard/nl/clock/%d_%d.mp3", dt.minute, dt.minute);
     }
     ESP_LOGI(TAG, "tell_time");
 }
