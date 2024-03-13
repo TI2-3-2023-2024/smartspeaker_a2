@@ -60,7 +60,7 @@ void display_time(audio_component_t player) {
     char buffer[20];
     struct DateTime dt;
 
-    // lcd_centerwrite("Time:", 1, false);
+    lcd_centerwrite("Time:", 1, false);
 
     while (true) {
         dt = get_time();
