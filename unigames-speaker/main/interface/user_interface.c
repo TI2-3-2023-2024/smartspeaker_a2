@@ -23,6 +23,8 @@
 #define MODE_BUTTON_ID 4
 #define REC_BUTTON_LONG_PRESSED_ID 7
 
+static const char *TAG = "INTERFACE";
+
 
 typedef struct menu_item {
     unsigned int id;
@@ -121,12 +123,19 @@ void handle_menu(int key) {
     case SET_BUTTON_ID:
 
         current_menu_id = menu[current_menu_index].new_id[3];
+        if (current_menu_id == MENU_SUB_1_0_ID)
+        {
+           ESP_LOGE(TAG, "Mic stopped");
+        }
+        
         break;
     //enter
     case PLAY_BUTTON_ID:
         current_menu_id = menu[current_menu_index].new_id[2];
-        if (current_menu_id == MENU_SUB_1_0_ID) {
-            mic_init();
+        if (current_menu_id == MENU_SUB_1_0_1_ID) {
+            ESP_LOGE(TAG, "Mic initialized");
+        
+            
         }
         break;
 

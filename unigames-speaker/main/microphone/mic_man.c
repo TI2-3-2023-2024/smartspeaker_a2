@@ -14,7 +14,13 @@
 
 #include "goertzel_filter.h"
 
-static const char *TAG = "GOERTZEL-EXAMPLE";
+static const char *TAG = "TALKING_BAS_MICROPHONE";
+
+audio_pipeline_handle_t pipeline;
+
+    audio_element_handle_t i2s_stream_reader;
+    audio_element_handle_t resample_filter;
+    audio_element_handle_t raw_reader;
 
 #define GOERTZEL_SAMPLE_RATE_HZ 8000	// Sample rate in [Hz]
 #define GOERTZEL_FRAME_LENGTH_MS 100	// Block length in [ms]
@@ -134,11 +140,7 @@ static void detect_freq(int target_freq, float magnitude) {
 
 esp_err_t tone_detection_task(void)
 {
-    audio_pipeline_handle_t pipeline;
-
-    audio_element_handle_t i2s_stream_reader;
-    audio_element_handle_t resample_filter;
-    audio_element_handle_t raw_reader;
+    
 
     goertzel_filter_cfg_t filters_cfg[GOERTZEL_NR_FREQS];
     goertzel_filter_data_t filters_data[GOERTZEL_NR_FREQS];
@@ -239,5 +241,6 @@ void mic_stop(void)
 
     // Deactivate the audio codec
     ESP_LOGI(TAG, "Deactivating audio codec");
+    audio_board_handle_t board_handle = audio_board_init();
     audio_hal_ctrl_codec(board_handle->audio_hal, AUDIO_HAL_CODEC_MODE_BOTH, AUDIO_HAL_CTRL_STOP);
 }
