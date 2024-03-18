@@ -12,7 +12,7 @@
 #define MENU_SUB_1_0_ID 3 // talking bas
 #define MENU_SUB_1_1_ID 4 // russian roulette
 #define MENU_SUB_1_2_ID 5 // coin flip
-#define MENU_SUB_2_0_ID 7 // instellingen beschrijving
+#define MENU_SUB_2_0_ID 7 // instellingen beschrijvinga
 #define MENU_SUB_1_0_0_ID 8 // Bas wacht op een vraag
 #define MENU_SUB_1_0_1_ID 9 // Bas denkt na...
 #define MENU_SUB_1_0_2_ID 10 // Bas geeft antwoord
@@ -125,7 +125,13 @@ void handle_menu(int key) {
     //enter
     case PLAY_BUTTON_ID:
         current_menu_id = menu[current_menu_index].new_id[2];
+        if (current_menu_id == MENU_SUB_1_0_ID) {
+            mic_init();
+        }
         break;
+
+        break;
+    
     //down
     case MODE_BUTTON_ID:
         current_menu_id = menu[current_menu_index].new_id[1];

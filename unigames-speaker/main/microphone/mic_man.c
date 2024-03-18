@@ -1,5 +1,8 @@
+
 #include <math.h>
+
 #include "freertos/FreeRTOS.h"
+
 #include "esp_err.h"
 #include "esp_log.h"
 #include "board.h"
@@ -8,23 +11,25 @@
 #include "i2s_stream.h"
 #include "raw_stream.h"
 #include "filter_resample.h"
+
 #include "goertzel_filter.h"
 
-// Define the tag for logging
 static const char *TAG = "GOERTZEL-EXAMPLE";
 
-// Define constants for Goertzel detection
-#define GOERTZEL_SAMPLE_RATE_HZ 8000
-#define GOERTZEL_FRAME_LENGTH_MS 100
-#define GOERTZEL_BUFFER_LENGTH (GOERTZEL_FRAME_LENGTH_MS * GOERTZEL_SAMPLE_RATE_HZ / 1000)
-#define GOERTZEL_DETECTION_THRESHOLD 50.0f
-#define AUDIO_SAMPLE_RATE 48000
-#define DETECTION_TIMEOUT_MS 2000
+#define GOERTZEL_SAMPLE_RATE_HZ 8000	// Sample rate in [Hz]
+#define GOERTZEL_FRAME_LENGTH_MS 100	// Block length in [ms]
 
-TimerHandle_t detection_timer;
+#define GOERTZEL_BUFFER_LENGTH (GOERTZEL_FRAME_LENGTH_MS * GOERTZEL_SAMPLE_RATE_HZ / 1000) // Buffer length in samples
+
+#define GOERTZEL_DETECTION_THRESHOLD 50.0f  // Detect a tone when log magnitude is above this value
+
+#define AUDIO_SAMPLE_RATE 48000         // Audio capture sample rate [Hz]
+
+#define DETECTION_TIMEOUT_MS 2000        // Timeout for detection in [ms]
+
 bool timerended = false;
 
-// Define frequencies for Goertzel detection
+
 static const int GOERTZEL_DETECT_FREQS[] = {
     300,
     500,
@@ -33,7 +38,6 @@ static const int GOERTZEL_DETECT_FREQS[] = {
 
 #define GOERTZEL_NR_FREQS ((sizeof GOERTZEL_DETECT_FREQS) / (sizeof GOERTZEL_DETECT_FREQS[0]))
 
-// Function to create an I2S stream
 static audio_element_handle_t create_i2s_stream(int sample_rate, audio_stream_type_t type)
 {
     i2s_stream_cfg_t i2s_cfg = I2S_STREAM_CFG_DEFAULT();
@@ -43,7 +47,6 @@ static audio_element_handle_t create_i2s_stream(int sample_rate, audio_stream_ty
     return i2s_stream;
 }
 
-// Function to create a resample filter
 static audio_element_handle_t create_resample_filter(
     int source_rate, int source_channels, int dest_rate, int dest_channels)
 {
@@ -56,7 +59,6 @@ static audio_element_handle_t create_resample_filter(
     return filter;
 }
 
-// Function to create a raw stream
 static audio_element_handle_t create_raw_stream()
 {
     raw_stream_cfg_t raw_cfg = {
@@ -67,7 +69,6 @@ static audio_element_handle_t create_raw_stream()
     return raw_reader;
 }
 
-// Function to create an audio pipeline
 static audio_pipeline_handle_t create_pipeline()
 {
     audio_pipeline_cfg_t pipeline_cfg = DEFAULT_AUDIO_PIPELINE_CONFIG();
@@ -75,7 +76,9 @@ static audio_pipeline_handle_t create_pipeline()
     return pipeline;
 }
 
-// Timer callback function
+TimerHandle_t detection_timer;
+
+
 void timer_callbacked(TimerHandle_t xTimer) {
     // This function will be called when the timer expires
     ESP_LOGI(TAG, "Timer elapsed");
@@ -105,7 +108,11 @@ void stop_detection_timer() {
     }
 }
 
-// Function to determine if a frequency was detected based on Goertzel magnitude
+/**
+ * Determine if a frequency was detected or not, based on the magnitude that the
+ * Goertzel filter calculated
+ * Use a logarithm for the magnitude
+ */
 static void detect_freq(int target_freq, float magnitude) {
     float logMagnitude = 10.0f * log10f(magnitude);
     
@@ -121,7 +128,10 @@ static void detect_freq(int target_freq, float magnitude) {
     }
 }
 
-// Task for tone detection
+
+
+
+
 esp_err_t tone_detection_task(void)
 {
     audio_pipeline_handle_t pipeline;
@@ -185,6 +195,7 @@ esp_err_t tone_detection_task(void)
         }
     }
     
+
     // Clean up (if we somehow leave the while loop, that is...)
     ESP_LOGI(TAG, "Deallocate raw sample buffer memory");
     free(raw_buffer);
@@ -204,7 +215,6 @@ esp_err_t tone_detection_task(void)
     audio_element_deinit(raw_reader);
 }
 
-// Function to initialize the microphone
 void mic_init(void)
 {
     esp_log_level_set("*", ESP_LOG_WARN);
@@ -217,4 +227,17 @@ void mic_init(void)
 
     // Perform tone detection task
     tone_detection_task();
+}
+
+void mic_stop(void)
+{
+    // Stop the audio pipeline
+    ESP_LOGI(TAG, "Stopping audio pipeline");
+    audio_pipeline_stop(pipeline);
+    audio_pipeline_wait_for_stop(pipeline);
+    audio_pipeline_terminate(pipeline);
+
+    // Deactivate the audio codec
+    ESP_LOGI(TAG, "Deactivating audio codec");
+    audio_hal_ctrl_codec(board_handle->audio_hal, AUDIO_HAL_CODEC_MODE_BOTH, AUDIO_HAL_CTRL_STOP);
 }
