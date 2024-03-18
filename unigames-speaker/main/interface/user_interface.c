@@ -126,6 +126,7 @@ void handle_menu(int key) {
         if (current_menu_id == MENU_SUB_1_0_ID)
         {
            ESP_LOGE(TAG, "Mic stopped");
+           vTaskDelete();
         }
         
         break;
@@ -134,7 +135,7 @@ void handle_menu(int key) {
         current_menu_id = menu[current_menu_index].new_id[2];
         if (current_menu_id == MENU_SUB_1_0_1_ID) {
             ESP_LOGE(TAG, "Mic initialized");
-        
+            mic_init();
             
         }
         break;

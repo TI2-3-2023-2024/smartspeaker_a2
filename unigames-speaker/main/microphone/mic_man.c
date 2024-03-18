@@ -1,7 +1,8 @@
-
 #include <math.h>
 
 #include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "freertos/queue.h"
 
 #include "esp_err.h"
 #include "esp_log.h"
@@ -15,6 +16,8 @@
 #include "goertzel_filter.h"
 
 static const char *TAG = "TALKING_BAS_MICROPHONE";
+
+QueueHandle_t button_queue;
 
 audio_pipeline_handle_t pipeline;
 
@@ -134,14 +137,8 @@ static void detect_freq(int target_freq, float magnitude) {
     }
 }
 
-
-
-
-
-esp_err_t tone_detection_task(void)
+void tone_detection_task(void *pvParameters) 
 {
-    
-
     goertzel_filter_cfg_t filters_cfg[GOERTZEL_NR_FREQS];
     goertzel_filter_data_t filters_data[GOERTZEL_NR_FREQS];
 
@@ -228,7 +225,7 @@ void mic_init(void)
     audio_hal_ctrl_codec(board_handle->audio_hal, AUDIO_HAL_CODEC_MODE_BOTH, AUDIO_HAL_CTRL_START);
 
     // Perform tone detection task
-    tone_detection_task();
+    xTaskCreate(tone_detection_task, "tone_detection_task", 4096, NULL, 5, NULL);
 }
 
 void mic_stop(void)
