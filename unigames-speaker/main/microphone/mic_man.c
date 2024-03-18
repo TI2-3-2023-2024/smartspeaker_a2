@@ -14,7 +14,9 @@
 
 #include "goertzel_filter.h"
 
-static const char *TAG = "GOERTZEL-EXAMPLE";
+static const char *TAG = "TALKING_BAS_MIC";
+
+bool basmode = false;
 
 #define GOERTZEL_SAMPLE_RATE_HZ 8000	// Sample rate in [Hz]
 #define GOERTZEL_FRAME_LENGTH_MS 100	// Block length in [ms]
@@ -180,8 +182,10 @@ esp_err_t tone_detection_task(void)
 
     ESP_LOGI(TAG, "Start pipeline");
     audio_pipeline_run(pipeline);
-
-    while (1) {
+// trying a boolean that gets switched to true when talking bas state is active in the interface, gets switched back when the interface is back on the mainpage,
+// thus creating a while loop that only runs when bas is active and hopefully also fixes the issue we have with the loop overriding everything.
+// not sure if we still need the mic_stop(); method considering we have the else statement that flushes and cleans up de pipeline.
+    while (basmode) {
         raw_stream_read(raw_reader, (char *) raw_buffer, GOERTZEL_BUFFER_LENGTH * sizeof(int16_t));
         for (int f = 0; f < GOERTZEL_NR_FREQS; f++) {
             float magnitude;
@@ -193,10 +197,7 @@ esp_err_t tone_detection_task(void)
                 detect_freq(filters_cfg[f].target_freq, magnitude);
             }
         }
-    }
-    
-
-    // Clean up (if we somehow leave the while loop, that is...)
+    } else {
     ESP_LOGI(TAG, "Deallocate raw sample buffer memory");
     free(raw_buffer);
 
@@ -213,6 +214,9 @@ esp_err_t tone_detection_task(void)
     audio_element_deinit(i2s_stream_reader);
     audio_element_deinit(resample_filter);
     audio_element_deinit(raw_reader);
+    }
+    
+
 }
 
 void mic_init(void)

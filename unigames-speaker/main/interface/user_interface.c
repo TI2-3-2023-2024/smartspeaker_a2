@@ -119,19 +119,22 @@ void handle_menu(int key) {
         break;
     //back
     case SET_BUTTON_ID:
-
+        if (current_menu_id == MENU_SUB_1_0_ID)
+        {
+            basmode = false
+            mic_stop();
+        }
+    
         current_menu_id = menu[current_menu_index].new_id[3];
         break;
     //enter
     case PLAY_BUTTON_ID:
         current_menu_id = menu[current_menu_index].new_id[2];
-        if (current_menu_id == MENU_SUB_1_0_ID) {
+        if (current_menu_id == MENU_SUB_1_0_1_ID) {
+            basmode = true
             mic_init();
         }
         break;
-
-        break;
-    
     //down
     case MODE_BUTTON_ID:
         current_menu_id = menu[current_menu_index].new_id[1];
