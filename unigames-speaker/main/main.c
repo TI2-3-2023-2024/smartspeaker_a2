@@ -34,7 +34,7 @@ audio_component_t audio_init(void);
 void audio_test(void);
 
 void app_main(void) {
-    time_init();
+    //time_init();
     lcd_init();
     //mic_init(talking_bas_random);
 
