@@ -21,6 +21,7 @@
 #include "threads/thread_man.h"
 #include "interface/user_interface.h"
 #include "microphone/mic_man.h"
+#include "radio/radio_man.h"
 
 audio_component_t player;
 
@@ -32,22 +33,25 @@ audio_component_t audio_init(void);
 void audio_test(void);
 
 void app_main(void) {
-    time_init();
-    lcd_init();
-    // mic_init();
 
-    menu_start();
-    button_han_init(handle_menu);
+    radio_main();
 
-#if defined CONFIG_ESP32_C3_LYRA_V2_BOARD
-    i2s_stream_cfg_t i2s_cfg = I2S_STREAM_PDM_TX_CFG_DEFAULT();
-#else
-    i2s_stream_cfg_t i2s_cfg = I2S_STREAM_CFG_DEFAULT();
-#endif
+//     time_init();
+//     lcd_init();
+//     // mic_init();
 
-    player = init_audio(i2s_cfg);
-    set_player(player);
-    set_volume(&player, 100);
+//     menu_start();
+//     button_han_init(handle_menu);
 
-    // start_thread("display_time", display);
+// #if defined CONFIG_ESP32_C3_LYRA_V2_BOARD
+//     i2s_stream_cfg_t i2s_cfg = I2S_STREAM_PDM_TX_CFG_DEFAULT();
+// #else
+//     i2s_stream_cfg_t i2s_cfg = I2S_STREAM_CFG_DEFAULT();
+// #endif
+
+//     player = init_audio(i2s_cfg);
+//     set_player(player);
+//     set_volume(&player, 100);
+
+//     // start_thread("display_time", display);
 }
