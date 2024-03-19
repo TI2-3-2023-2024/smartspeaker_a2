@@ -25,6 +25,7 @@
 
 static const char *TAG = "INTERFACE";
 
+bool mic_initialized = true;
 
 typedef struct menu_item {
     unsigned int id;
@@ -121,25 +122,22 @@ void handle_menu(int key) {
         break;
     //back
     case SET_BUTTON_ID:
-
         current_menu_id = menu[current_menu_index].new_id[3];
+
         if (current_menu_id == MENU_SUB_1_0_ID)
         {
            ESP_LOGE(TAG, "Mic stopped");
-           vTaskDelete();
+           mic_stop();
         }
-        
         break;
     //enter
     case PLAY_BUTTON_ID:
         current_menu_id = menu[current_menu_index].new_id[2];
-        if (current_menu_id == MENU_SUB_1_0_1_ID) {
+        if (current_menu_id == MENU_SUB_1_0_0_ID && mic_initialized == true) {
             ESP_LOGE(TAG, "Mic initialized");
-            mic_init();
-            
+            mic_init();   
+            mic_initialized = false; 
         }
-        break;
-
         break;
     
     //down

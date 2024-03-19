@@ -4,7 +4,7 @@
         "board/esp32-bridge.cfg"
     ],
     "idf.flashType": "UART",
-    "idf.portWin": "COM7",
+    "idf.portWin": "COM10",
     "files.associations": {
         "inttypes.h": "c",
         "custom_audio.h": "c",

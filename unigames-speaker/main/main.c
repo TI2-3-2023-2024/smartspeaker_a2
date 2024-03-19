@@ -28,13 +28,14 @@ void display() {
     display_time();
 }
 
+
 audio_component_t audio_init(void);
 void audio_test(void);
 
 void app_main(void) {
     time_init();
     lcd_init();
-    // mic_init();
+    //mic_init();
 
     menu_start();
     button_han_init(handle_menu);

@@ -148,7 +148,7 @@ void tone_detection_task(void *pvParameters)
     int16_t *raw_buffer = (int16_t *) malloc((GOERTZEL_BUFFER_LENGTH * sizeof(int16_t)));
     if (raw_buffer == NULL) {
         ESP_LOGE(TAG, "Memory allocation for raw sample buffer failed");
-        return ESP_FAIL;
+        vTaskDelete(NULL);
     }
 
     ESP_LOGI(TAG, "Setup Goertzel detection filters");
@@ -230,14 +230,17 @@ void mic_init(void)
 
 void mic_stop(void)
 {
-    // Stop the audio pipeline
-    ESP_LOGI(TAG, "Stopping audio pipeline");
-    audio_pipeline_stop(pipeline);
-    audio_pipeline_wait_for_stop(pipeline);
-    audio_pipeline_terminate(pipeline);
+    // Stop the tone detection task
+    vTaskDelete(tone_detection_task);
 
-    // Deactivate the audio codec
-    ESP_LOGI(TAG, "Deactivating audio codec");
-    audio_board_handle_t board_handle = audio_board_init();
-    audio_hal_ctrl_codec(board_handle->audio_hal, AUDIO_HAL_CODEC_MODE_BOTH, AUDIO_HAL_CTRL_STOP);
+    // // Stop the audio pipeline
+    // ESP_LOGE(TAG, "Stopping audio pipeline");
+    // audio_pipeline_stop(pipeline);
+    // audio_pipeline_wait_for_stop(pipeline);
+    // audio_pipeline_terminate(pipeline);
+
+    // // Deactivate the audio codec
+    // ESP_LOGE(TAG, "Deactivating audio codec");
+    // audio_board_handle_t board_handle = audio_board_init();
+    // audio_hal_ctrl_codec(board_handle->audio_hal, AUDIO_HAL_CODEC_MODE_BOTH, AUDIO_HAL_CTRL_STOP);
 }
