@@ -25,6 +25,8 @@
         "button_tasks.h": "c",
         "button_man.h": "c",
         "thread_man.h": "c",
-        "player.h": "c"
+        "player.h": "c",
+        "esp_attr.h": "c",
+        "time.h": "c"
     }
 }
