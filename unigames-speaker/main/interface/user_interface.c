@@ -280,8 +280,7 @@ void clear_menu() {
 
 void increase_volume(int key) {
 
-    switch (key)
-    {
+    switch (key) {
     case REC_BUTTON_ID:
         player.volume += 10;
         break;
@@ -292,6 +291,13 @@ void increase_volume(int key) {
     
     default:
         break;
+    }
+
+    if (player.volume > 100) {
+        player.volume = 100;
+    }
+    else if (player.volume < 0) {
+        player.volume = 0;
     }
 
     sprintf(buffer, "Volume: %d", player.volume);

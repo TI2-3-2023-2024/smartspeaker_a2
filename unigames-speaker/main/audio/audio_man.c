@@ -51,7 +51,7 @@ audio_component_t init_audio() {
     i2s_stream_cfg_t i2s_cfg = I2S_STREAM_CFG_DEFAULT();
     i2s_cfg.type = AUDIO_STREAM_WRITER;
     i2s_stream_writer = i2s_stream_init(&i2s_cfg);
-    i2s_stream_set_clk(i2s_stream_writer, 16000, 16, 2);
+    i2s_stream_set_clk(i2s_stream_writer, 48000, 16, 2);
 
     ESP_LOGI(TAG, "[4.2] Create mp3 decoder to decode mp3 file");
     mp3_decoder_cfg_t mp3_cfg = DEFAULT_MP3_DECODER_CONFIG();
@@ -88,7 +88,7 @@ audio_component_t init_audio() {
     audio_pipeline_set_listener(pipeline, evt);
     audio_event_iface_set_listener(esp_periph_set_get_event_iface(set), evt);
 
-    int player_volume = 85;
+    int player_volume = 80;
 
     audio_component_t player = {
         .pipeline = pipeline,
@@ -110,6 +110,7 @@ audio_component_t init_audio() {
 /// @param player the player whose audio pipeline is to be started
 /// @param url the url of the audio file to be played from the sdcard
 void play_audio(audio_component_t *player, char* url) {
+    audio_hal_set_volume(player->audio_board->audio_hal, player->volume);
     audio_element_set_uri(player->fatfs_stream_reader, url);
     audio_pipeline_reset_ringbuffer(player->pipeline);
     audio_pipeline_reset_elements(player->pipeline);
@@ -148,6 +149,8 @@ void set_volume(audio_component_t *player, int volume) {
 void play_multiple_audio_task(void *pvParameters) {
     playlist_t *playlist = (playlist_t *) pvParameters;
     int playlist_index = 0;
+
+    audio_hal_set_volume(playlist->player.audio_board->audio_hal, playlist->player.volume);
 
     audio_element_set_uri(playlist->player.fatfs_stream_reader, playlist->file_uris[0]);
     audio_pipeline_reset_ringbuffer(playlist->player.pipeline);
