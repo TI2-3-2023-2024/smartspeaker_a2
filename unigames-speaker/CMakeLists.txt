@@ -6,7 +6,7 @@
 cmake_minimum_required(VERSION 3.5)
 set(EXTRA_COMPONENT_DIRS 
     # C:/Users/jeffw/esp/esp-idf-lib/components  
-    C:/Users/lucas/esp/esp-idf-lib/components
+    C:/Users/Wessel/esp/esp-idf-lib/components
     $ENV{IDF_PATH}/examples/common_components/protocol_examples_common
 )
 include($ENV{ADF_PATH}/CMakeLists.txt)

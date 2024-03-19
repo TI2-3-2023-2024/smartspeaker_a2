@@ -28,28 +28,18 @@ void display() {
     display_time();
 }
 
-// audio_component_t audio_init(void);
-// void audio_test(void);
+audio_component_t audio_init(void);
+void audio_test(void);
 
 void app_main(void) {
-    time_init();
-    lcd_init();
+    //lcd_init();
+    //time_init();
     // mic_init();
+    player = init_audio();
 
     menu_start();
     button_han_init(handle_menu);
 
-    
-
-// #if defined CONFIG_ESP32_C3_LYRA_V2_BOARD
-//     i2s_stream_cfg_t i2s_cfg = I2S_STREAM_PDM_TX_CFG_DEFAULT();
-// #else
-//     i2s_stream_cfg_t i2s_cfg = I2S_STREAM_CFG_DEFAULT();
-// #endif
-
-    // player = init_audio(i2s_cfg);
-    // set_player(player);
-    // set_volume(&player, 100);
-
-    // start_thread("display_time", display);
+    char *file_uris[] = {"/sdcard/nl/games/bas/HOHOHO.mp3", "/sdcard/nl/games/bas/JA.mp3", "/sdcard/nl/games/bas/HOHOHO.mp3", "/sdcard/nl/games/bas/JA.mp3", "/sdcard/nl/games/bas/JA.mp3"};
+    play_audio(&player, file_uris[0]);
 }
