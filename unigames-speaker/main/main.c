@@ -22,6 +22,8 @@
 #include "interface/user_interface.h"
 #include "microphone/mic_man.h"
 
+#define MAX_FILES 5
+
 audio_component_t player;
 audio_component_t player2;
 

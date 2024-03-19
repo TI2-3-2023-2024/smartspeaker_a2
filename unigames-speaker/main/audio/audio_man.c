@@ -108,9 +108,12 @@ audio_component_t init_audio() {
 
 /// @brief the audio pipeline is started and the audio is played
 /// @param player the player whose audio pipeline is to be started
-/// @param marker the marker that points to the audio file to be played
+/// @param url the url of the audio file to be played from the sdcard
 void play_audio(audio_component_t *player, char* url) {
     audio_element_set_uri(player->fatfs_stream_reader, url);
+    audio_pipeline_reset_ringbuffer(player->pipeline);
+    audio_pipeline_reset_elements(player->pipeline);
+    audio_pipeline_change_state(player->pipeline, AEL_STATE_INIT);
     audio_pipeline_run(player->pipeline);
 }
 
