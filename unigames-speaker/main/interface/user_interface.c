@@ -150,13 +150,15 @@ void menu_start() {
 
 void set_language(char* language) {
     if (strcmp(language, "NEDERLANDS") == 0) {
+        current_language = language;
         printf("Nederlands\n");
     } else if (strcmp(language, "ENGLISH") == 0) {
+        current_language = language;
         printf("English\n");
     } else if (strcmp(language, "FRANCAIS") == 0) {
+        current_language = language;
         printf("Francais\n");
     } else if (strcmp(language, "") == 0) {
-        printf("Niks\n");
     } else {
       // Default case, hier gebeurt niets
     }

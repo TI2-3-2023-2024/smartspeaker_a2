@@ -32,14 +32,14 @@ audio_component_t audio_init(void);
 void audio_test(void);
 
 void app_main(void) {
-    //lcd_init();
+    lcd_init();
     //time_init();
     // mic_init();
-    player = init_audio();
+    //player = init_audio();
 
     menu_start();
     button_han_init(handle_menu);
 
-    char *file_uris[] = {"/sdcard/nl/games/bas/HOHOHO.mp3", "/sdcard/nl/games/bas/JA.mp3", "/sdcard/nl/games/bas/HOHOHO.mp3", "/sdcard/nl/games/bas/JA.mp3", "/sdcard/nl/games/bas/JA.mp3"};
-    play_audio(&player, file_uris[0]);
+    //char *file_uris[] = {"/sdcard/nl/games/bas/HOHOHO.mp3", "/sdcard/nl/games/bas/JA.mp3", "/sdcard/nl/games/bas/HOHOHO.mp3", "/sdcard/nl/games/bas/JA.mp3", "/sdcard/nl/games/bas/JA.mp3"};
+    //play_audio(&player, file_uris[0]);
 }
