@@ -88,7 +88,7 @@ void timer_callbacked(TimerHandle_t xTimer) {
     timerended = true;
 
     int random = rand() % 5;
-    play_audio(&player, bas_file_uris[random]);
+    play_audio(&player, bas_file_uris[0]);
 }
 
 // Function to start the detection timeout timer
@@ -219,7 +219,7 @@ void tone_detection_task(void *pvParameters)
 void mic_init(void (*callback)())
 {
     *bas_file_uris = malloc(MAX_FILES * sizeof(char*));
-    bas_file_uris[0] = "/sdcard/nl/games/bas/NEE.mp3";
+    bas_file_uris[0] = "/sdcard/peter.mp3";
     bas_file_uris[1] = "/sdcard/nl/games/bas/JA.mp3";
     bas_file_uris[2] = "/sdcard/nl/games/bas/BUHHH.mp3";
     bas_file_uris[3] = "/sdcard/nl/games/bas/HOHOHO.mp3";
