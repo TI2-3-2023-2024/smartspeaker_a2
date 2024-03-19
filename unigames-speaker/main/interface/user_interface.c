@@ -46,7 +46,7 @@ typedef struct menu_item {
     unsigned int id;
     unsigned int new_id[MAX_MENU_KEY];
     char* text[MAX_LCD_LINES];
-    void* (*function)(int key);
+    void (*function)(int key);
 } menu_item_t;
 
 char buffer[20];
@@ -136,7 +136,7 @@ menu_item_t menu[] = {
         {
             //Sub screen for 2_1
             MENU_SUB_2_1_ID,
-            {MENU_SUB_2_0_ID, MENU_SUB_2_1_ID, MENU_SUB_2_1_0_ID, MENU_MAIN_2_ID},
+            {MENU_SUB_2_0_ID, MENU_SUB_2_2_ID, MENU_SUB_2_1_0_ID, MENU_MAIN_2_ID},
             {"===INSTELLINGEN===", "Sprekende klok", "volume instellen", ""},
             NULL
         },
@@ -150,7 +150,7 @@ menu_item_t menu[] = {
         {
             //Sub screen for 2_2_0
             MENU_SUB_2_2_ID,
-            {MENU_SUB_2_0_ID, MENU_SUB_2_1_ID, MENU_SUB_2_1_ID, MENU_MAIN_2_ID},
+            {MENU_SUB_2_1_ID, MENU_SUB_2_2_ID, MENU_SUB_2_0_0_ID, MENU_MAIN_2_ID},
             {"===INSTELLINGEN===", "Taal instellen", "", ""},
             NULL
         },
@@ -158,14 +158,14 @@ menu_item_t menu[] = {
             //Sub screen for 2_0_0
             MENU_SUB_2_0_0_ID,
             {MENU_SUB_2_0_0_ID, MENU_SUB_2_0_1_ID, MENU_SUB_2_0_0_ID, MENU_SUB_2_2_ID},
-            {"===INSTELLINGEN===", "English", "", ""},
+            {"===INSTELLINGEN===", "Nederlands", "", ""},
             handle_language
         },
         {
             //Sub screen for 2_0_1
             MENU_SUB_2_0_1_ID,
             {MENU_SUB_2_0_0_ID, MENU_SUB_2_0_2_ID, MENU_SUB_2_0_1_ID, MENU_SUB_2_2_ID},
-            {"===INSTELLINGEN===", "Nederlands", "", ""},
+            {"===INSTELLINGEN===", "English", "", ""},
             handle_language
         },
         {
@@ -293,6 +293,7 @@ void set_language() {
 
     case MENU_SUB_2_0_0_ID:
         language = LANGUAGE_DUTCH;
+        ESP_LOGE("Language", "Language set to Dutch");
         lcd_clear(2);
         lcd_clear(3);
         lcd_write("Taal ingesteld op", 0, 2, false);
@@ -301,6 +302,7 @@ void set_language() {
 
     case MENU_SUB_2_0_1_ID:
         language = LANGUAGE_ENGLISH;
+        ESP_LOGE("Language", "Language set to English");
         lcd_clear(2);
         lcd_clear(3);
         lcd_write("Language set to", 0, 2, false);
@@ -309,6 +311,7 @@ void set_language() {
 
     case MENU_SUB_2_0_2_ID:
         language = LANGUAGE_FRENCH;
+        ESP_LOGE("Language", "Language set to French");
         lcd_clear(2);
         lcd_clear(3);
         lcd_write("Langue réglée sur", 0, 2, false);

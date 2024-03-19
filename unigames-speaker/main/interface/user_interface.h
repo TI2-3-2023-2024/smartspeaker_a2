@@ -3,6 +3,7 @@
 
 
 #include <stdio.h>
+#include "esp_log.h"
 #include "../lcd/lcd_man.h"
 #include "../time/time_man.h"
 #include "../clock/clock_man.h"
