@@ -22,12 +22,13 @@
 #include "interface/user_interface.h"
 #include "microphone/mic_man.h"
 
+#define MAX_FILES 5
+
 audio_component_t player;
 
 void display() {
     display_time();
 }
-
 
 audio_component_t audio_init(void);
 void audio_test(void);
@@ -35,7 +36,7 @@ void audio_test(void);
 void app_main(void) {
     time_init();
     lcd_init();
-    //mic_init();
+    //mic_init(talking_bas_random);
 
     menu_start();
     button_han_init(handle_menu);

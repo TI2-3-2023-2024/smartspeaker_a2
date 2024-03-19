@@ -1,4 +1,6 @@
 #include "user_interface.h"
+#include "../audio/audio_man.h"
+#include "../audio/player.h"
 
 #define MAX_MENU_KEY 6
 #define MAX_LCD_LINES 4
@@ -22,6 +24,8 @@
 #define PLAY_BUTTON_ID 3
 #define MODE_BUTTON_ID 4
 #define REC_BUTTON_LONG_PRESSED_ID 7
+
+#define MAX_FILES 5
 
 static const char *TAG = "INTERFACE";
 
@@ -105,6 +109,11 @@ menu_item_t menu[] = {
 static unsigned int current_menu_index = MENU_MAIN_0_ID;
 static unsigned int current_menu_id;
 
+void talking_bas_random() {
+    ESP_LOGE(TAG, "Talking Bas");
+    
+}
+
 void print_menu_item(char** text[]);
 void clear_menu();
 void write_time();
@@ -135,7 +144,7 @@ void handle_menu(int key) {
         current_menu_id = menu[current_menu_index].new_id[2];
         if (current_menu_id == MENU_SUB_1_0_0_ID) {
             ESP_LOGE(TAG, "Mic initialized");
-            mic_init();   
+            mic_init(talking_bas_random);   
         }
         break;
     

@@ -1,10 +1,16 @@
 #include "mic_man.h"
+#include "../audio/player.h"
+#include "../audio/audio_man.h"
+
+#define MAX_FILES 5
 
 static const char *TAG = "TALKING_BAS_MICROPHONE";
 
 QueueHandle_t button_queue;
 
 bool button_pressed = false;
+
+void (*function_callback)(void);
 
 audio_pipeline_handle_t pipeline;
 
@@ -74,11 +80,15 @@ static audio_pipeline_handle_t create_pipeline()
 
 TimerHandle_t detection_timer;
 
+char *bas_file_uris[MAX_FILES];
 
 void timer_callbacked(TimerHandle_t xTimer) {
     // This function will be called when the timer expires
     ESP_LOGI(TAG, "Timer elapsed");
     timerended = true;
+
+    int random = rand() % 5;
+    play_audio(&player, bas_file_uris[random]);
 }
 
 // Function to start the detection timeout timer
@@ -206,8 +216,14 @@ void tone_detection_task(void *pvParameters)
     audio_element_deinit(raw_reader);
 }
 
-void mic_init(void)
+void mic_init(void (*callback)())
 {
+    *bas_file_uris = malloc(MAX_FILES * sizeof(char*));
+    bas_file_uris[0] = "/sdcard/nl/games/bas/NEE.mp3";
+    bas_file_uris[1] = "/sdcard/nl/games/bas/JA.mp3";
+    bas_file_uris[2] = "/sdcard/nl/games/bas/BUHHH.mp3";
+    bas_file_uris[3] = "/sdcard/nl/games/bas/HOHOHO.mp3";
+    bas_file_uris[4] = "/sdcard/nl/games/bas/NEE.mp3";
     esp_log_level_set("*", ESP_LOG_WARN);
     esp_log_level_set(TAG, ESP_LOG_INFO);
 

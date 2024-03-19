@@ -18,7 +18,7 @@
 
 #include "goertzel_filter.h"
 
-void mic_init(void);
+void mic_init(void (*callback)());
 void mic_stop(void);
 
 
