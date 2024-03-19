@@ -31,7 +31,7 @@ void display() {
 
 void app_main(void) {
     lcd_init();
-    time_init();
+    //time_init();
     // mic_init();
     player = init_audio();
 
