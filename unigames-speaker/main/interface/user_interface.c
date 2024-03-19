@@ -1,4 +1,6 @@
 #include "user_interface.h"
+#include "../audio/audio_man.h"
+#include "../audio/player.h"
 
 #define MAX_MENU_KEY 6
 #define MAX_LCD_LINES 4
@@ -12,7 +14,7 @@
 #define MENU_SUB_1_0_ID 3 // talking bas
 #define MENU_SUB_1_1_ID 4 // russian roulette
 #define MENU_SUB_1_2_ID 5 // coin flip
-#define MENU_SUB_2_0_ID 7 // instellingen beschrijving
+#define MENU_SUB_2_0_ID 7 // instellingen beschrijvinga
 #define MENU_SUB_1_0_0_ID 8 // Bas wacht op een vraag
 #define MENU_SUB_1_0_1_ID 9 // Bas denkt na...
 #define MENU_SUB_1_0_2_ID 10 // Bas geeft antwoord
@@ -23,6 +25,11 @@
 #define MODE_BUTTON_ID 4
 #define REC_BUTTON_LONG_PRESSED_ID 7
 
+#define MAX_FILES 5
+
+static const char *TAG = "INTERFACE";
+
+bool mic_initialized = true;
 
 typedef struct menu_item {
     unsigned int id;
@@ -102,6 +109,11 @@ menu_item_t menu[] = {
 static unsigned int current_menu_index = MENU_MAIN_0_ID;
 static unsigned int current_menu_id;
 
+void talking_bas_random() {
+    ESP_LOGE(TAG, "Talking Bas");
+    
+}
+
 void print_menu_item(char** text[]);
 void clear_menu();
 void write_time();
@@ -119,13 +131,23 @@ void handle_menu(int key) {
         break;
     //back
     case SET_BUTTON_ID:
-
         current_menu_id = menu[current_menu_index].new_id[3];
+
+        if (current_menu_id == MENU_SUB_1_0_ID)
+        {
+           ESP_LOGE(TAG, "Mic stopped");
+           mic_stop();
+        }
         break;
     //enter
     case PLAY_BUTTON_ID:
         current_menu_id = menu[current_menu_index].new_id[2];
+        if (current_menu_id == MENU_SUB_1_0_0_ID) {
+            ESP_LOGE(TAG, "Mic initialized");
+            mic_init(talking_bas_random);
+        }
         break;
+    
     //down
     case MODE_BUTTON_ID:
         current_menu_id = menu[current_menu_index].new_id[1];
