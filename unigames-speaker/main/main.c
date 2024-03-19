@@ -23,31 +23,30 @@
 #include "microphone/mic_man.h"
 
 audio_component_t player;
+audio_component_t player2;
 
 void display() {
     display_time();
 }
 
-audio_component_t audio_init(void);
-void audio_test(void);
-
 void app_main(void) {
-    time_init();
     lcd_init();
+    time_init();
     // mic_init();
+    player = init_audio();
 
     menu_start();
     button_han_init(handle_menu);
 
-#if defined CONFIG_ESP32_C3_LYRA_V2_BOARD
-    i2s_stream_cfg_t i2s_cfg = I2S_STREAM_PDM_TX_CFG_DEFAULT();
-#else
-    i2s_stream_cfg_t i2s_cfg = I2S_STREAM_CFG_DEFAULT();
-#endif
+    char *file_uris[] = {"/sdcard/nl/games/bas/HOHOHO.mp3", "/sdcard/nl/games/bas/JA.mp3", "/sdcard/penalties.mp3"};
+    play_audio(&player, file_uris[2]);
 
-    player = init_audio(i2s_cfg);
-    set_player(player);
-    set_volume(&player, 100);
+    //set_volume(&player2, 100);
+    //play_audio(&player2, "/sdcard/nl/games/bas/JA.mp3");
+
+
+    // set_volume(&player, 100);
+    // play_audio(&player, "/sdcard/nl/games/bas/HOHOHO.mp3");
 
     // start_thread("display_time", display);
 }
