@@ -133,10 +133,9 @@ void handle_menu(int key) {
     //enter
     case PLAY_BUTTON_ID:
         current_menu_id = menu[current_menu_index].new_id[2];
-        if (current_menu_id == MENU_SUB_1_0_0_ID && mic_initialized == true) {
+        if (current_menu_id == MENU_SUB_1_0_0_ID) {
             ESP_LOGE(TAG, "Mic initialized");
             mic_init();   
-            mic_initialized = false; 
         }
         break;
     

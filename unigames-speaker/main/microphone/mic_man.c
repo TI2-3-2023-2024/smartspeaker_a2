@@ -1,23 +1,10 @@
-#include <math.h>
-
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
-#include "freertos/queue.h"
-
-#include "esp_err.h"
-#include "esp_log.h"
-#include "board.h"
-#include "audio_common.h"
-#include "audio_pipeline.h"
-#include "i2s_stream.h"
-#include "raw_stream.h"
-#include "filter_resample.h"
-
-#include "goertzel_filter.h"
+#include "mic_man.h"
 
 static const char *TAG = "TALKING_BAS_MICROPHONE";
 
 QueueHandle_t button_queue;
+
+bool button_pressed = false;
 
 audio_pipeline_handle_t pipeline;
 
@@ -139,16 +126,16 @@ static void detect_freq(int target_freq, float magnitude) {
 
 void tone_detection_task(void *pvParameters) 
 {
+    button_pressed = false;
     goertzel_filter_cfg_t filters_cfg[GOERTZEL_NR_FREQS];
     goertzel_filter_data_t filters_data[GOERTZEL_NR_FREQS];
 
-    ESP_LOGI(TAG, "Number of Goertzel detection filters is %d", GOERTZEL_NR_FREQS);
 
     ESP_LOGI(TAG, "Create raw sample buffer");
     int16_t *raw_buffer = (int16_t *) malloc((GOERTZEL_BUFFER_LENGTH * sizeof(int16_t)));
     if (raw_buffer == NULL) {
         ESP_LOGE(TAG, "Memory allocation for raw sample buffer failed");
-        vTaskDelete(NULL);
+        
     }
 
     ESP_LOGI(TAG, "Setup Goertzel detection filters");
@@ -181,10 +168,15 @@ void tone_detection_task(void *pvParameters)
     audio_pipeline_run(pipeline);
 
     while (1) {
+        if(button_pressed) {
+            break;
+        }
         raw_stream_read(raw_reader, (char *) raw_buffer, GOERTZEL_BUFFER_LENGTH * sizeof(int16_t));
         for (int f = 0; f < GOERTZEL_NR_FREQS; f++) {
             float magnitude;
-
+            if(button_pressed) {
+            break;
+        }
             esp_err_t error = goertzel_filter_process(&filters_data[f], raw_buffer, GOERTZEL_BUFFER_LENGTH);
             ESP_ERROR_CHECK(error);
 
@@ -194,7 +186,7 @@ void tone_detection_task(void *pvParameters)
         }
     }
     
-
+    vTaskDelete(NULL);
     // Clean up (if we somehow leave the while loop, that is...)
     ESP_LOGI(TAG, "Deallocate raw sample buffer memory");
     free(raw_buffer);
@@ -230,17 +222,16 @@ void mic_init(void)
 
 void mic_stop(void)
 {
-    // Stop the tone detection task
-    vTaskDelete(tone_detection_task);
+    button_pressed = true;
 
-    // // Stop the audio pipeline
-    // ESP_LOGE(TAG, "Stopping audio pipeline");
-    // audio_pipeline_stop(pipeline);
-    // audio_pipeline_wait_for_stop(pipeline);
-    // audio_pipeline_terminate(pipeline);
+    // Stop the audio pipeline
+    ESP_LOGE(TAG, "Stopping audio pipeline");
+    audio_pipeline_stop(pipeline);
+    audio_pipeline_wait_for_stop(pipeline);
+    audio_pipeline_terminate(pipeline);
 
-    // // Deactivate the audio codec
-    // ESP_LOGE(TAG, "Deactivating audio codec");
-    // audio_board_handle_t board_handle = audio_board_init();
-    // audio_hal_ctrl_codec(board_handle->audio_hal, AUDIO_HAL_CODEC_MODE_BOTH, AUDIO_HAL_CTRL_STOP);
+    // Deactivate the audio codec
+    ESP_LOGE(TAG, "Deactivating audio codec");
+    audio_board_handle_t board_handle = audio_board_init();
+    audio_hal_ctrl_codec(board_handle->audio_hal, AUDIO_HAL_CODEC_MODE_BOTH, AUDIO_HAL_CTRL_STOP);
 }
