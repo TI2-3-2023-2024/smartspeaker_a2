@@ -111,7 +111,7 @@ menu_item_t menu[] = {
     {
         //Main screen
         MENU_MAIN_2_ID,
-        {MENU_MAIN_1_ID, MENU_MAIN_2_ID, MENU_SUB_2_0_ID, MENU_MAIN_2_ID},
+        {MENU_MAIN_1_ID, MENU_MAIN_3_ID, MENU_SUB_2_0_ID, MENU_MAIN_2_ID},
         {"===HOOFDMENU===", "Instellingen", "", ""},
         NULL
     },
@@ -238,12 +238,12 @@ void handle_menu(int key) {
     case PLAY_BUTTON_ID:
         current_menu_id = menu[current_menu_index].new_id[2];
         if (current_menu_id == MENU_SUB_1_0_0_ID) {
-            play_audio(&player, "/sdcard/intro/WELKOMBAS.mp3");
+            play_audio(&player, "/sdcard/intro/welkomb.mp3");
             ESP_LOGE(TAG, "Mic initialized");
             mic_init(talking_bas_random);
         }
         if (current_menu_id == MENU_SUB_3_0_1_ID) {
-            play_audio(&player, "/sdcard/intro/WELKOMINTERNETRADIO.mp3");
+            play_audio(&player, "/sdcard/intro/welkomi.mp3");
         }
         break;
     //down
