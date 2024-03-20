@@ -52,6 +52,10 @@ int language = LANGAUAGE_DEFAULT;
 static const char *TAG = "INTERFACE";
 bool mic_initialized = true;
 
+#define DETECTION_TIMEOUT_MS 4000 // Timeout for detection in [ms]
+bool introtimerended = false;
+TimerHandle_t intro_timer;
+
 typedef struct menu_item {
     unsigned int id;
     unsigned int new_id[MAX_MENU_KEY];
@@ -217,6 +221,31 @@ void menu_start() {
     print_menu_item(menu[current_menu_index].text);
 }
 
+void introtimer_callbacked(TimerHandle_t xTimer)
+{
+    ESP_LOGE(TAG, "Mic initialized");
+    mic_init(talking_bas_random);
+}
+
+
+void start_intro_timer()
+{
+    if (intro_timer == NULL)
+    {
+        intro_timer = xTimerCreate("introTimer", pdMS_TO_TICKS(4000), pdFALSE, (void *)0, introtimer_callbacked);
+    }
+
+    if (intro_timer != NULL)
+    {
+        xTimerStart(intro_timer, 0);
+    }
+    else
+    {
+        ESP_LOGE(TAG, "Failed to create intro timer");
+    }
+    introtimerended = false;
+}
+
 void handle_menu(int key) {
 
     switch (key) {
@@ -239,11 +268,11 @@ void handle_menu(int key) {
         current_menu_id = menu[current_menu_index].new_id[2];
         if (current_menu_id == MENU_SUB_1_0_0_ID) {
             play_audio(&player, "/sdcard/intro/welkomb.mp3");
-            ESP_LOGE(TAG, "Mic initialized");
-            mic_init(talking_bas_random);
+            start_intro_timer();
         }
         if (current_menu_id == MENU_SUB_3_0_1_ID) {
             play_audio(&player, "/sdcard/intro/welkomi.mp3");
+            start_intro_timer();
         }
         break;
     //down
