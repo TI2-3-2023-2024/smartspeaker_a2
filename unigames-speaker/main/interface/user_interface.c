@@ -417,12 +417,12 @@ void listen_to_radio(int key) {
             break;
 
         case MENU_SUB_3_2_ID:
-            xTaskCreate(radio_init, "radio_init", 2048, 2, 5, &radio_task_handle);
+            xTaskCreate(radio_init, "radio_init_task", 2048, 2, 5, &radio_task_handle);
             radio_playing = true;
             break;
 
         case MENU_SUB_3_3_ID:
-            xTaskCreate(radio_init, "radio_init", 2048, 3, 5, &radio_task_handle);
+            xTaskCreate(radio_init, "radio_init_task", 2048, 3, 5, &radio_task_handle);
             radio_playing = true;
             break;
 

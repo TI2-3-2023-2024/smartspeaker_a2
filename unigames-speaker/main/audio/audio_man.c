@@ -217,3 +217,8 @@ void play_multiple_audio_task(void *pvParameters) {
     }
 }
 
+audio_event_iface_cfg_t get_audio_event_iface_cfg() {
+    audio_event_iface_cfg_t evt_cfg = AUDIO_EVENT_IFACE_DEFAULT_CFG();
+    return evt_cfg;
+}
+

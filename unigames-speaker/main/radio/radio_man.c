@@ -1,4 +1,5 @@
 #include "radio_man.h"
+#include "../audio/audio_man.h"
 
 static const char *TAG = "Radio_man";
 
@@ -25,8 +26,6 @@ void radio_init(void *pvParameters)
 {
     audio_pipeline_handle_t pipeline;
     audio_element_handle_t http_stream_reader, i2s_stream_writer, aac_decoder;
-    audio_event_iface_cfg_t evt_cfg;
-    audio_event_iface_handle_t evt;
 
     int zender = (int)pvParameters;
 
@@ -110,8 +109,8 @@ void radio_init(void *pvParameters)
     periph_wifi_wait_for_connected(wifi_handle, portMAX_DELAY);
 
     ESP_LOGI(TAG, "[ 4 ] Set up  event listener");
-    evt_cfg = AUDIO_EVENT_IFACE_DEFAULT_CFG();
-    evt = audio_event_iface_init(&evt_cfg);
+    audio_event_iface_cfg_t evt_cfg = get_audio_event_iface_cfg();
+    audio_event_iface_handle_t evt = audio_event_iface_init(&evt_cfg);
 
     ESP_LOGI(TAG, "[4.1] Listening event from all elements of pipeline");
     audio_pipeline_set_listener(pipeline, evt);

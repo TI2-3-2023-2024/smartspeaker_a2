@@ -48,6 +48,7 @@ void play_multiple_audio_task(void *pvParameters);
 void stop_audio(audio_component_t *player);
 void set_volume(audio_component_t *player, int volume);
 void play_audio(audio_component_t *player, char* uri);
+audio_event_iface_cfg_t get_audio_event_iface_cfg();
 // void play_audio_with_event(audio_component_t *player, file_marker_t *marker, void(*on_finshed)());
 // void stop_audio(audio_component_t *player);
 // void set_volume(audio_component_t *player, int volume);
