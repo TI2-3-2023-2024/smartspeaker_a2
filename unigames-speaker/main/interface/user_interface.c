@@ -1,6 +1,9 @@
 #include "user_interface.h"
 #include "../audio/audio_man.h"
 #include "../audio/player.h"
+#include "../radio/radio_man.h"
+
+TaskHandle_t radio_task_handle;
 
 #define MAX_MENU_KEY 6
 #define MAX_LCD_LINES 4
@@ -9,6 +12,7 @@
 #define MENU_MAIN_0_ID 0 // sprekende klok
 #define MENU_MAIN_1_ID 2 // speel unigames
 #define MENU_MAIN_2_ID 6 // instellingen
+#define MENU_MAIN_3_ID 8 // radio
 
 #define MENU_MAIN_0_0_ID 1 // sprekende klok
 
@@ -30,6 +34,10 @@
 #define MENU_SUB_2_0_0_ID 14 // English
 #define MENU_SUB_2_0_1_ID 15 // Nederlands
 #define MENU_SUB_2_0_2_ID 16 // Français
+
+#define MENU_SUB_3_1_ID 17 // radio zender 1
+#define MENU_SUB_3_2_ID 18 // radio zender 2
+#define MENU_SUB_3_3_ID 19 // radio zender 3
 
 #define REC_BUTTON_ID 1
 #define SET_BUTTON_ID 2
@@ -61,6 +69,7 @@ char buffer[20];
 void handle_language(int key);
 void set_language();
 void increase_volume(int key);
+void listen_to_radio(int key);
 
 //Array with directions for the interface
 menu_item_t menu[] = {
@@ -181,6 +190,34 @@ menu_item_t menu[] = {
             {MENU_SUB_2_0_1_ID, MENU_SUB_2_0_2_ID, MENU_SUB_2_0_2_ID, MENU_SUB_2_2_ID},
             {"===INSTELLINGEN===", "Français", "", ""},
             handle_language
+        },
+        {
+            //Sub screen for 3
+            MENU_MAIN_3_ID,
+            {MENU_MAIN_3_ID, MENU_MAIN_2_ID, MENU_SUB_3_1_ID, MENU_MAIN_3_ID},
+            {"===HOOFDMENU===", "Radio", "", ""},
+            NULL
+        },
+        {
+            //Sub screen for 3_1
+            MENU_SUB_3_1_ID,
+            {MENU_SUB_3_1_ID, MENU_SUB_3_2_ID, MENU_SUB_3_1_ID, MENU_MAIN_3_ID},
+            {"===RADIO===", "Zender 1", "", ""},
+            listen_to_radio
+        },
+        {
+            //Sub screen for 3_2
+            MENU_SUB_3_2_ID,
+            {MENU_SUB_3_1_ID, MENU_SUB_3_3_ID, MENU_SUB_3_2_ID, MENU_MAIN_3_ID},
+            {"===RADIO===", "Zender 2", "", ""},
+            listen_to_radio
+        },
+        {
+            //Sub screen for 3_3
+            MENU_SUB_3_3_ID,
+            {MENU_SUB_3_2_ID, MENU_SUB_3_3_ID, MENU_SUB_3_3_ID, MENU_MAIN_3_ID},
+            {"===RADIO===", "Zender 3", "", ""},
+            listen_to_radio
         }
 };
 
@@ -350,4 +387,47 @@ void set_language() {
     default:
         break;
     }
+}
+
+bool radio_playing = false;
+
+void listen_to_radio(int key) {
+
+    if (radio_playing) {
+        vTaskDelete(radio_task_handle);
+    }
+    
+    switch (key)
+    {
+    case SET_BUTTON_ID:
+        radio_playing = false;
+        vTaskDelete(radio_task_handle);
+        return;
+        break;
+    
+    default:
+        break;
+    }
+
+    switch (current_menu_index) {
+
+        case MENU_SUB_3_1_ID:
+            xTaskCreate(radio_init, "radio_init", 2048, 1, 5, &radio_task_handle);
+            radio_playing = true;
+            break;
+
+        case MENU_SUB_3_2_ID:
+            xTaskCreate(radio_init, "radio_init", 2048, 2, 5, &radio_task_handle);
+            radio_playing = true;
+            break;
+
+        case MENU_SUB_3_3_ID:
+            xTaskCreate(radio_init, "radio_init", 2048, 3, 5, &radio_task_handle);
+            radio_playing = true;
+            break;
+
+        default:
+            break;
+    }
+    
 }

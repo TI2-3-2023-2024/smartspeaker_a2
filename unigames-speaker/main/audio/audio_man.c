@@ -106,6 +106,10 @@ audio_component_t init_audio() {
     return player; 
 }
 
+void radio_audio_init() {
+    
+}
+
 /// @brief the audio pipeline is started and the audio is played
 /// @param player the player whose audio pipeline is to be started
 /// @param url the url of the audio file to be played from the sdcard

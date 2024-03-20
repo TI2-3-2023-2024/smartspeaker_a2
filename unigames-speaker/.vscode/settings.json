@@ -27,6 +27,7 @@
         "thread_man.h": "c",
         "player.h": "c",
         "esp_attr.h": "c",
-        "time.h": "c"
+        "time.h": "c",
+        "radio_man.h": "c"
     }
 }
