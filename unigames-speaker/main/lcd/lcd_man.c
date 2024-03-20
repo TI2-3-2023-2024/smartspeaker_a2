@@ -48,6 +48,10 @@ void lcd_initialize() {
     hd44780_upload_character(&lcd, 1, char_data + 8);
 }
 
+void lcd_backlight(bool state) {
+    hd44780_switch_backlight(&lcd, state);
+}
+
 /// @brief This function clears the selected line.
 /// @param line Line to clear (0-3).
 void lcd_clear(uint8_t line) {

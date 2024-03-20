@@ -9,6 +9,7 @@
 #define MENU_MAIN_0_ID 0 // sprekende klok
 #define MENU_MAIN_1_ID 2 // speel unigames
 #define MENU_MAIN_2_ID 6 // instellingen
+#define MENU_MAIN_3_ID 17 // internet radio
 
 #define MENU_MAIN_0_0_ID 1 // sprekende klok
 
@@ -31,6 +32,8 @@
 #define MENU_SUB_2_0_1_ID 15 // Nederlands
 #define MENU_SUB_2_0_2_ID 16 // Français
 
+#define MENU_SUB_3_0_1_ID 18 // internetradio afspelen
+
 #define REC_BUTTON_ID 1
 #define SET_BUTTON_ID 2
 #define PLAY_BUTTON_ID 3
@@ -48,6 +51,10 @@ int language = LANGAUAGE_DEFAULT;
 #define MAX_FILES 5
 static const char *TAG = "INTERFACE";
 bool mic_initialized = true;
+
+#define DETECTION_TIMEOUT_MS 4000 // Timeout for detection in [ms]
+bool introtimerended = false;
+TimerHandle_t intro_timer;
 
 typedef struct menu_item {
     unsigned int id;
@@ -108,7 +115,7 @@ menu_item_t menu[] = {
     {
         //Main screen
         MENU_MAIN_2_ID,
-        {MENU_MAIN_1_ID, MENU_MAIN_2_ID, MENU_SUB_2_0_ID, MENU_MAIN_2_ID},
+        {MENU_MAIN_1_ID, MENU_MAIN_3_ID, MENU_SUB_2_0_ID, MENU_MAIN_2_ID},
         {"===HOOFDMENU===", "Instellingen", "", ""},
         NULL
     },
@@ -181,6 +188,20 @@ menu_item_t menu[] = {
             {MENU_SUB_2_0_1_ID, MENU_SUB_2_0_2_ID, MENU_SUB_2_0_2_ID, MENU_SUB_2_2_ID},
             {"===INSTELLINGEN===", "Français", "", ""},
             handle_language
+        },
+        {
+        //internet radio
+        MENU_MAIN_3_ID,
+            {MENU_MAIN_2_ID, MENU_MAIN_3_ID, MENU_SUB_3_0_1_ID, MENU_MAIN_3_ID},
+        {"===HOOFDMENU===", "Internet Radio", "", ""},
+        NULL
+        },
+        {
+            //Sub screen for 3_0_1
+            MENU_SUB_3_0_1_ID,
+            {MENU_SUB_3_0_1_ID, MENU_SUB_3_0_1_ID, MENU_SUB_3_0_1_ID, MENU_MAIN_3_ID},
+            {"===INTERNET RADIO===", "u luistert nu naar", "", ""},
+            NULL
         }
 };
 
@@ -198,6 +219,31 @@ void write_time();
 
 void menu_start() {
     print_menu_item(menu[current_menu_index].text);
+}
+
+void introtimer_callbacked(TimerHandle_t xTimer)
+{
+    ESP_LOGE(TAG, "Mic initialized");
+    mic_init(talking_bas_random);
+}
+
+
+void start_intro_timer()
+{
+    if (intro_timer == NULL)
+    {
+        intro_timer = xTimerCreate("introTimer", pdMS_TO_TICKS(4000), pdFALSE, (void *)0, introtimer_callbacked);
+    }
+
+    if (intro_timer != NULL)
+    {
+        xTimerStart(intro_timer, 0);
+    }
+    else
+    {
+        ESP_LOGE(TAG, "Failed to create intro timer");
+    }
+    introtimerended = false;
 }
 
 void handle_menu(int key) {
@@ -221,11 +267,14 @@ void handle_menu(int key) {
     case PLAY_BUTTON_ID:
         current_menu_id = menu[current_menu_index].new_id[2];
         if (current_menu_id == MENU_SUB_1_0_0_ID) {
-            ESP_LOGE(TAG, "Mic initialized");
-            mic_init(talking_bas_random);
+            play_audio(&player, "/sdcard/intro/welkomb.mp3");
+            start_intro_timer();
+        }
+        if (current_menu_id == MENU_SUB_3_0_1_ID) {
+            play_audio(&player, "/sdcard/intro/welkomi.mp3");
+            start_intro_timer();
         }
         break;
-    
     //down
     case MODE_BUTTON_ID:
         current_menu_id = menu[current_menu_index].new_id[1];

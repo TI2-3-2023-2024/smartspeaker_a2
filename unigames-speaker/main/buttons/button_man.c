@@ -4,12 +4,61 @@
 #include "periph_adc_button.h"
 #include "input_key_service.h"
 #include <stdio.h>
+#include "../lcd/lcd_man.h"
 #include "button_man.h"
 #include "button_tasks.h"
 
-static const char *TAG = "Button";
+static const char *TAG = "button_man";
 
 void (*on_pressed)(int) = NULL;
+
+bool is_pressed = false;
+
+TimerHandle_t detection_timer2;
+bool timerended2 = false;
+
+void timer_callbacked2(TimerHandle_t xTimer) {
+    timerended2 = true;
+    lcd_backlight(false);
+    ESP_LOGI(TAG, "backlight off");
+}
+
+
+void start_button_detection_timer() {
+    if (detection_timer2 == NULL) {
+        detection_timer2 = xTimerCreate("ButtonDetectionTimer", pdMS_TO_TICKS(10000), pdFALSE, (void *)0, timer_callbacked2);
+    }
+
+    if (detection_timer2 != NULL) {
+        lcd_backlight(true);
+        xTimerStart(detection_timer2, 0);
+    } else {
+        ESP_LOGE(TAG, "Failed to create detection timer");
+    }
+    timerended2 = false;
+}
+
+void stop_button_detection_timer() {
+    if (detection_timer2 != NULL) {
+        xTimerStop(detection_timer2, 0);
+        xTimerDelete(detection_timer2, 0);
+        detection_timer2 = NULL;
+    }
+}
+
+void detect_press() {
+    if (is_pressed) {
+        ESP_LOGI(TAG, "Button is pressed");
+        start_button_detection_timer(); // Start or reset the detection timer
+        ESP_LOGI(TAG, "Timer started");
+        timerended2 = true; // Set flag to prevent timer from starting again
+        is_pressed = false;
+    } else if (!timerended2) {
+        stop_button_detection_timer(); // Stop the detection timer
+        ESP_LOGI(TAG, "Timer stopped");
+        timerended2 = true; // Set flag to prevent timer from starting again
+    }
+}
 
 /// @brief Callback function for handling input key events.
 /// @param handle The handle of the peripheral service.
@@ -31,48 +80,59 @@ static esp_err_t input_key_service_cb(periph_service_handle_t handle, periph_ser
         case INPUT_KEY_USER_ID_REC:
             ESP_LOGI(TAG, "[Rec] %s", key_types[evt->type]);
             if(key_types[evt->type] == key_types[2]){
+                is_pressed = true;
                 on_pressed(1);
             } else if(key_types[evt->type] == key_types[3]){
+                is_pressed = true;
                 on_pressed(7);
             }
             break;
         case INPUT_KEY_USER_ID_SET:
             ESP_LOGI(TAG, "[Set] %s", key_types[evt->type]);
             if(key_types[evt->type] == key_types[2]){
+                is_pressed = true;
                 on_pressed(2);
             }
             break;
         case INPUT_KEY_USER_ID_PLAY:
             ESP_LOGI(TAG, "[Play] %s", key_types[evt->type]);
             if(key_types[evt->type] == key_types[2]){
+                is_pressed = true;
                 on_pressed(3);
-            }
+            }          
             break;
         case INPUT_KEY_USER_ID_MODE:
             ESP_LOGI(TAG, "[Mode] %s", key_types[evt->type]);
              if(key_types[evt->type] == key_types[2]){
+                is_pressed = true;
                 on_pressed(4);
-             }
+             }           
             break;
         case INPUT_KEY_USER_ID_VOLDOWN:
             ESP_LOGI(TAG, "[Vol-] %s", key_types[evt->type]);
             if(key_types[evt->type] == key_types[2]){
+                is_pressed = true;
                 on_pressed(5);
-            }
+            }           
             break;
         case INPUT_KEY_USER_ID_VOLUP:
             ESP_LOGI(TAG, "[Vol+] %s", key_types[evt->type]);
             if(key_types[evt->type] == key_types[2]){
+                is_pressed = true;
                 on_pressed(6);
-                }
+                }             
             break;
         default:
             press_pointer(8);
             break;
     }
+    detect_press();
     return ESP_OK;
 
 }
+
+#define DETECTION_TIMEOUT_MS 10000        // Timeout for detection in [ms]
+
 
 /// @brief Initializes the button handler module and sets the callback function for button press events.
 /// @param on_pressed_callback Pointer to the function that will handle button press events.
