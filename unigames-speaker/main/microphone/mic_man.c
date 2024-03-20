@@ -88,7 +88,7 @@ void timer_callbacked(TimerHandle_t xTimer) {
     timerended = true;
 
     int random = rand() % 5;
-    play_audio(&player, bas_file_uris[0]);
+    play_audio(&player, bas_file_uris[random]);
 }
 
 // Function to start the detection timeout timer
