@@ -9,6 +9,7 @@
 #define MENU_MAIN_0_ID 0 // sprekende klok
 #define MENU_MAIN_1_ID 2 // speel unigames
 #define MENU_MAIN_2_ID 6 // instellingen
+#define MENU_MAIN_3_ID 17 // internet radio
 
 #define MENU_MAIN_0_0_ID 1 // sprekende klok
 
@@ -30,6 +31,8 @@
 #define MENU_SUB_2_0_0_ID 14 // English
 #define MENU_SUB_2_0_1_ID 15 // Nederlands
 #define MENU_SUB_2_0_2_ID 16 // Français
+
+#define MENU_SUB_3_0_1_ID 18 // internetradio afspelen
 
 #define REC_BUTTON_ID 1
 #define SET_BUTTON_ID 2
@@ -181,6 +184,20 @@ menu_item_t menu[] = {
             {MENU_SUB_2_0_1_ID, MENU_SUB_2_0_2_ID, MENU_SUB_2_0_2_ID, MENU_SUB_2_2_ID},
             {"===INSTELLINGEN===", "Français", "", ""},
             handle_language
+        },
+        {
+        //internet radio
+        MENU_MAIN_3_ID,
+            {MENU_MAIN_2_ID, MENU_MAIN_3_ID, MENU_SUB_3_0_1_ID, MENU_MAIN_3_ID},
+        {"===HOOFDMENU===", "Internet Radio", "", ""},
+        NULL
+        },
+        {
+            //Sub screen for 3_0_1
+            MENU_SUB_3_0_1_ID,
+            {MENU_SUB_3_0_1_ID, MENU_SUB_3_0_1_ID, MENU_SUB_3_0_1_ID, MENU_MAIN_3_ID},
+            {"===INTERNET RADIO===", "u luistert nu naar", "", ""},
+            NULL
         }
 };
 
@@ -221,11 +238,14 @@ void handle_menu(int key) {
     case PLAY_BUTTON_ID:
         current_menu_id = menu[current_menu_index].new_id[2];
         if (current_menu_id == MENU_SUB_1_0_0_ID) {
+            play_audio(&player, "/sdcard/intro/WELKOMBAS.mp3");
             ESP_LOGE(TAG, "Mic initialized");
             mic_init(talking_bas_random);
         }
+        if (current_menu_id == MENU_SUB_3_0_1_ID) {
+            play_audio(&player, "/sdcard/intro/WELKOMINTERNETRADIO.mp3");
+        }
         break;
-    
     //down
     case MODE_BUTTON_ID:
         current_menu_id = menu[current_menu_index].new_id[1];
