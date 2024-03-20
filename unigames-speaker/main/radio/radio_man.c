@@ -1,8 +1,10 @@
-#import "radio_man.h"
+#include "radio_man.h"
 
 static const char *TAG = "Radio_man";
 
-#define AAC_STREAM_URI "https://stream.qmusic.nl/nonstop/aachigh"
+#define AAC_STREAM_URI_1 "https://stream.qmusic.nl/nonstop/aachigh"
+#define AAC_STREAM_URI_2 "https://playerservices.streamtheworld.com/api/livestream-redirect/TLPSTR09AAC.aac"
+#define AAC_STREAM_URI_3 "https://playerservices.streamtheworld.com/api/livestream-redirect/SKYRADIOAAC.aac"
 
 int _http_stream_event_handle(http_stream_event_msg_t *msg)
 {
@@ -19,7 +21,7 @@ int _http_stream_event_handle(http_stream_event_msg_t *msg)
     return ESP_OK;
 }
 
-void radio_main(void)
+void radio_main(int zender)
 {
     esp_err_t err = nvs_flash_init();
     if (err == ESP_ERR_NVS_NO_FREE_PAGES) {
@@ -76,7 +78,21 @@ void radio_main(void)
     audio_pipeline_link(pipeline, &link_tag[0], 3);
 
     ESP_LOGI(TAG, "[2.6] Set up  uri (http as http_stream, aac as aac decoder, and default output is i2s)");
-    audio_element_set_uri(http_stream_reader, AAC_STREAM_URI);
+    switch (zender)
+    {
+    case 1:
+        audio_element_set_uri(http_stream_reader, AAC_STREAM_URI_1);
+        break;
+    case 2:
+        audio_element_set_uri(http_stream_reader, AAC_STREAM_URI_2);
+        break;
+    case 3:
+        audio_element_set_uri(http_stream_reader, AAC_STREAM_URI_3);
+        break;
+    default:
+        audio_element_set_uri(http_stream_reader, AAC_STREAM_URI_1);
+        break;
+    }
 
     ESP_LOGI(TAG, "[ 3 ] Start and wait for Wi-Fi network");
     esp_periph_config_t periph_cfg = DEFAULT_ESP_PERIPH_SET_CONFIG();

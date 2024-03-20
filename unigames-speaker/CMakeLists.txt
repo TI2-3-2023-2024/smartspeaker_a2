@@ -12,3 +12,6 @@ set(EXTRA_COMPONENT_DIRS
 include($ENV{ADF_PATH}/CMakeLists.txt)
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)
 project(unigames-speaker)
+
+message([IDF], "IDF: $ENV{IDF_PATH}")
+message([ADF], "ADF: $ENV{ADF_PATH}")

@@ -34,7 +34,7 @@ void audio_test(void);
 
 void app_main(void) {
 
-    radio_main();
+    radio_main(3);
 
 //     time_init();
 //     lcd_init();

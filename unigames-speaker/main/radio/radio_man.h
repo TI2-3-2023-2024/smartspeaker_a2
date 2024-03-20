@@ -30,6 +30,6 @@
 #endif
 
 int _http_stream_event_handle(http_stream_event_msg_t *msg);
-void radio_main(void);
+void radio_main(int zender);
 
 #endif // radio_man.h
