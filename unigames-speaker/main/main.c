@@ -33,7 +33,7 @@ void app_main(void) {
     lcd_init();
     //time_init();
     player = init_audio();
-
-    menu_start();
     button_han_init(handle_menu);
+    menu_start();
+    
 }

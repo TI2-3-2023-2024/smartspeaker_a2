@@ -8,95 +8,25 @@
 #include "button_man.h"
 #include "button_tasks.h"
 
-static const char *TAG = "Button";
+static const char *TAG = "button_man";
 
 void (*on_pressed)(int) = NULL;
 
 bool is_pressed = false;
 
-/// @brief Callback function for handling input key events.
-/// @param handle The handle of the peripheral service.
-/// @param evt Pointer to the event structure containing key event information.
-/// @param ctx Pointer to the context data (unused in this function).
-/// @return ESP_OK if the key event is handled successfully, else an error code.
-static esp_err_t input_key_service_cb(periph_service_handle_t handle, periph_service_event_t *evt, void *ctx)
-{
-
-    // rec = 1
-    // set = 2
-    // play = 3
-    // mode = 4
-
-    void (*press_pointer)(int) = pressed;
-    ESP_LOGD(TAG, "[ * ] input key id is %d, %d", (int)evt->data, evt->type);
-    const char *key_types[INPUT_KEY_SERVICE_ACTION_PRESS_RELEASE + 1] = {"UNKNOWN", "ingedrukt", "snel losgelaten", "vastgehouden", "vastgehouden losgelaten"};
-    switch ((int)evt->data) {
-        case INPUT_KEY_USER_ID_REC:
-            ESP_LOGI(TAG, "[Rec] %s", key_types[evt->type]);
-            if(key_types[evt->type] == key_types[2]){
-                on_pressed(1);
-            } else if(key_types[evt->type] == key_types[3]){
-                on_pressed(7);
-            }
-            is_pressed = true;
-            break;
-        case INPUT_KEY_USER_ID_SET:
-            ESP_LOGI(TAG, "[Set] %s", key_types[evt->type]);
-            if(key_types[evt->type] == key_types[2]){
-                on_pressed(2);
-            }
-            is_pressed = true;
-            break;
-        case INPUT_KEY_USER_ID_PLAY:
-            ESP_LOGI(TAG, "[Play] %s", key_types[evt->type]);
-            if(key_types[evt->type] == key_types[2]){
-                on_pressed(3);
-            }
-            is_pressed = true;
-            break;
-        case INPUT_KEY_USER_ID_MODE:
-            ESP_LOGI(TAG, "[Mode] %s", key_types[evt->type]);
-             if(key_types[evt->type] == key_types[2]){
-                on_pressed(4);
-             }
-             is_pressed = true;
-            break;
-        case INPUT_KEY_USER_ID_VOLDOWN:
-            ESP_LOGI(TAG, "[Vol-] %s", key_types[evt->type]);
-            if(key_types[evt->type] == key_types[2]){
-                on_pressed(5);
-            }
-            is_pressed = true;
-            break;
-        case INPUT_KEY_USER_ID_VOLUP:
-            ESP_LOGI(TAG, "[Vol+] %s", key_types[evt->type]);
-            if(key_types[evt->type] == key_types[2]){
-                on_pressed(6);
-                }
-                is_pressed = true;
-            break;
-        default:
-            press_pointer(8);
-            break;
-    }
-    void detect_press();
-    return ESP_OK;
-
-}
-
-#define DETECTION_TIMEOUT_MS 10000        // Timeout for detection in [ms]
-
 TimerHandle_t detection_timer2;
 bool timerended2 = false;
 
 void timer_callbacked2(TimerHandle_t xTimer) {
+    timerended2 = true;
     lcd_backlight(false);
+    ESP_LOGI(TAG, "backlight off");
 }
 
 
 void start_button_detection_timer() {
     if (detection_timer2 == NULL) {
-        detection_timer2 = xTimerCreate("DetectionTimer", pdMS_TO_TICKS(10000), pdFALSE, (void *)0, timer_callbacked2);
+        detection_timer2 = xTimerCreate("ButtonDetectionTimer", pdMS_TO_TICKS(10000), pdFALSE, (void *)0, timer_callbacked2);
     }
 
     if (detection_timer2 != NULL) {
@@ -129,6 +59,80 @@ void detect_press() {
         timerended2 = true; // Set flag to prevent timer from starting again
     }
 }
+
+/// @brief Callback function for handling input key events.
+/// @param handle The handle of the peripheral service.
+/// @param evt Pointer to the event structure containing key event information.
+/// @param ctx Pointer to the context data (unused in this function).
+/// @return ESP_OK if the key event is handled successfully, else an error code.
+static esp_err_t input_key_service_cb(periph_service_handle_t handle, periph_service_event_t *evt, void *ctx)
+{
+
+    // rec = 1
+    // set = 2
+    // play = 3
+    // mode = 4
+
+    void (*press_pointer)(int) = pressed;
+    ESP_LOGD(TAG, "[ * ] input key id is %d, %d", (int)evt->data, evt->type);
+    const char *key_types[INPUT_KEY_SERVICE_ACTION_PRESS_RELEASE + 1] = {"UNKNOWN", "ingedrukt", "snel losgelaten", "vastgehouden", "vastgehouden losgelaten"};
+    switch ((int)evt->data) {
+        case INPUT_KEY_USER_ID_REC:
+            ESP_LOGI(TAG, "[Rec] %s", key_types[evt->type]);
+            if(key_types[evt->type] == key_types[2]){
+                is_pressed = true;
+                on_pressed(1);
+            } else if(key_types[evt->type] == key_types[3]){
+                is_pressed = true;
+                on_pressed(7);
+            }
+            break;
+        case INPUT_KEY_USER_ID_SET:
+            ESP_LOGI(TAG, "[Set] %s", key_types[evt->type]);
+            if(key_types[evt->type] == key_types[2]){
+                is_pressed = true;
+                on_pressed(2);
+            }
+            break;
+        case INPUT_KEY_USER_ID_PLAY:
+            ESP_LOGI(TAG, "[Play] %s", key_types[evt->type]);
+            if(key_types[evt->type] == key_types[2]){
+                is_pressed = true;
+                on_pressed(3);
+            }          
+            break;
+        case INPUT_KEY_USER_ID_MODE:
+            ESP_LOGI(TAG, "[Mode] %s", key_types[evt->type]);
+             if(key_types[evt->type] == key_types[2]){
+                is_pressed = true;
+                on_pressed(4);
+             }           
+            break;
+        case INPUT_KEY_USER_ID_VOLDOWN:
+            ESP_LOGI(TAG, "[Vol-] %s", key_types[evt->type]);
+            if(key_types[evt->type] == key_types[2]){
+                is_pressed = true;
+                on_pressed(5);
+            }           
+            break;
+        case INPUT_KEY_USER_ID_VOLUP:
+            ESP_LOGI(TAG, "[Vol+] %s", key_types[evt->type]);
+            if(key_types[evt->type] == key_types[2]){
+                is_pressed = true;
+                on_pressed(6);
+                }             
+            break;
+        default:
+            press_pointer(8);
+            break;
+    }
+    detect_press();
+    return ESP_OK;
+
+}
+
+#define DETECTION_TIMEOUT_MS 10000        // Timeout for detection in [ms]
+
 
 /// @brief Initializes the button handler module and sets the callback function for button press events.
 /// @param on_pressed_callback Pointer to the function that will handle button press events.
