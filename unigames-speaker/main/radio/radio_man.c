@@ -21,7 +21,12 @@ int _http_stream_event_handle(http_stream_event_msg_t *msg)
     return ESP_OK;
 }
 
-void radio_main(int zender)
+audio_pipeline_handle_t pipeline;
+audio_element_handle_t http_stream_reader, i2s_stream_writer, aac_decoder;
+audio_event_iface_cfg_t evt_cfg;
+audio_event_iface_handle_t evt;
+
+void radio_init(int zender)
 {
     esp_err_t err = nvs_flash_init();
     if (err == ESP_ERR_NVS_NO_FREE_PAGES) {
@@ -34,15 +39,12 @@ void radio_main(int zender)
     tcpip_adapter_init();
 #endif
 
-    audio_pipeline_handle_t pipeline;
-    audio_element_handle_t http_stream_reader, i2s_stream_writer, aac_decoder;
-
     esp_log_level_set("*", ESP_LOG_INFO);
     esp_log_level_set(TAG, ESP_LOG_DEBUG);
 
-    ESP_LOGI(TAG, "[ 1 ] Start audio codec chip");
-    audio_board_handle_t board_handle = audio_board_init();
-    audio_hal_ctrl_codec(board_handle->audio_hal, AUDIO_HAL_CODEC_MODE_DECODE, AUDIO_HAL_CTRL_START);
+    // ESP_LOGI(TAG, "[ 1 ] Start audio codec chip");
+    // audio_board_handle_t board_handle = audio_board_init();
+    // audio_hal_ctrl_codec(board_handle->audio_hal, AUDIO_HAL_CODEC_MODE_DECODE, AUDIO_HAL_CTRL_START);
 
     ESP_LOGI(TAG, "[2.0] Create audio pipeline for playback");
     audio_pipeline_cfg_t pipeline_cfg = DEFAULT_AUDIO_PIPELINE_CONFIG();
@@ -77,7 +79,75 @@ void radio_main(int zender)
     const char *link_tag[3] = {"http", "aac", "i2s"};
     audio_pipeline_link(pipeline, &link_tag[0], 3);
 
-    ESP_LOGI(TAG, "[2.6] Set up  uri (http as http_stream, aac as aac decoder, and default output is i2s)");
+    // ESP_LOGI(TAG, "[2.6] Set up  uri (http as http_stream, aac as aac decoder, and default output is i2s)");
+    // switch (zender)
+    // {
+    // case 1:
+    //     audio_element_set_uri(http_stream_reader, AAC_STREAM_URI_1);
+    //     break;
+    // case 2:
+    //     audio_element_set_uri(http_stream_reader, AAC_STREAM_URI_2);
+    //     break;
+    // case 3:
+    //     audio_element_set_uri(http_stream_reader, AAC_STREAM_URI_3);
+    //     break;
+    // default:
+    //     audio_element_set_uri(http_stream_reader, AAC_STREAM_URI_1);
+    //     break;
+    // }
+
+    ESP_LOGI(TAG, "[ 3 ] Start and wait for Wi-Fi network");
+    esp_periph_config_t periph_cfg = DEFAULT_ESP_PERIPH_SET_CONFIG();
+    esp_periph_set_handle_t set = esp_periph_set_init(&periph_cfg);
+    periph_wifi_cfg_t wifi_cfg = {
+        .ssid = CONFIG_EXAMPLE_WIFI_SSID,
+        .password = CONFIG_EXAMPLE_WIFI_PASSWORD,
+    };
+    esp_periph_handle_t wifi_handle = periph_wifi_init(&wifi_cfg);
+    esp_periph_start(set, wifi_handle);
+    periph_wifi_wait_for_connected(wifi_handle, portMAX_DELAY);
+
+    ESP_LOGI(TAG, "[ 4 ] Set up  event listener");
+    evt_cfg = AUDIO_EVENT_IFACE_DEFAULT_CFG();
+    evt = audio_event_iface_init(&evt_cfg);
+
+    ESP_LOGI(TAG, "[4.1] Listening event from all elements of pipeline");
+    audio_pipeline_set_listener(pipeline, evt);
+
+    ESP_LOGI(TAG, "[4.2] Listening event from peripherals");
+    audio_event_iface_set_listener(esp_periph_set_get_event_iface(set), evt);
+
+    ESP_LOGI(TAG, "[ 6 ] Stop audio_pipeline");
+    audio_pipeline_stop(pipeline);
+    audio_pipeline_wait_for_stop(pipeline);
+    audio_pipeline_terminate(pipeline);
+
+    audio_pipeline_unregister(pipeline, http_stream_reader);
+    audio_pipeline_unregister(pipeline, i2s_stream_writer);
+    audio_pipeline_unregister(pipeline, aac_decoder);
+
+    /* Terminate the pipeline before removing the listener */
+    audio_pipeline_remove_listener(pipeline);
+
+    /* Stop all peripherals before removing the listener */
+    esp_periph_set_stop_all(set);
+    audio_event_iface_remove_listener(esp_periph_set_get_event_iface(set), evt);
+
+    /* Make sure audio_pipeline_remove_listener & audio_event_iface_remove_listener are called before destroying event_iface */
+    audio_event_iface_destroy(evt);
+
+    /* Release all resources */
+    audio_pipeline_deinit(pipeline);
+    audio_element_deinit(http_stream_reader);
+    audio_element_deinit(i2s_stream_writer);
+    audio_element_deinit(aac_decoder);
+    esp_periph_set_destroy(set);
+}
+
+void radio_start(void *pvParameters)
+{
+    int zender = (int)pvParameters;
+
     switch (zender)
     {
     case 1:
@@ -93,30 +163,6 @@ void radio_main(int zender)
         audio_element_set_uri(http_stream_reader, AAC_STREAM_URI_1);
         break;
     }
-
-    ESP_LOGI(TAG, "[ 3 ] Start and wait for Wi-Fi network");
-    esp_periph_config_t periph_cfg = DEFAULT_ESP_PERIPH_SET_CONFIG();
-    esp_periph_set_handle_t set = esp_periph_set_init(&periph_cfg);
-    periph_wifi_cfg_t wifi_cfg = {
-        .ssid = CONFIG_EXAMPLE_WIFI_SSID,
-        .password = CONFIG_EXAMPLE_WIFI_PASSWORD,
-    };
-    esp_periph_handle_t wifi_handle = periph_wifi_init(&wifi_cfg);
-    esp_periph_start(set, wifi_handle);
-    periph_wifi_wait_for_connected(wifi_handle, portMAX_DELAY);
-
-    ESP_LOGI(TAG, "[ 4 ] Set up  event listener");
-    audio_event_iface_cfg_t evt_cfg = AUDIO_EVENT_IFACE_DEFAULT_CFG();
-    audio_event_iface_handle_t evt = audio_event_iface_init(&evt_cfg);
-
-    ESP_LOGI(TAG, "[4.1] Listening event from all elements of pipeline");
-    audio_pipeline_set_listener(pipeline, evt);
-
-    ESP_LOGI(TAG, "[4.2] Listening event from peripherals");
-    audio_event_iface_set_listener(esp_periph_set_get_event_iface(set), evt);
-
-    ESP_LOGI(TAG, "[ 5 ] Start audio_pipeline");
-    audio_pipeline_run(pipeline);
 
     while (1) {
         audio_event_iface_msg_t msg;
@@ -153,30 +199,4 @@ void radio_main(int zender)
             continue;
         }
     }
-
-    ESP_LOGI(TAG, "[ 6 ] Stop audio_pipeline");
-    audio_pipeline_stop(pipeline);
-    audio_pipeline_wait_for_stop(pipeline);
-    audio_pipeline_terminate(pipeline);
-
-    audio_pipeline_unregister(pipeline, http_stream_reader);
-    audio_pipeline_unregister(pipeline, i2s_stream_writer);
-    audio_pipeline_unregister(pipeline, aac_decoder);
-
-    /* Terminate the pipeline before removing the listener */
-    audio_pipeline_remove_listener(pipeline);
-
-    /* Stop all peripherals before removing the listener */
-    esp_periph_set_stop_all(set);
-    audio_event_iface_remove_listener(esp_periph_set_get_event_iface(set), evt);
-
-    /* Make sure audio_pipeline_remove_listener & audio_event_iface_remove_listener are called before destroying event_iface */
-    audio_event_iface_destroy(evt);
-
-    /* Release all resources */
-    audio_pipeline_deinit(pipeline);
-    audio_element_deinit(http_stream_reader);
-    audio_element_deinit(i2s_stream_writer);
-    audio_element_deinit(aac_decoder);
-    esp_periph_set_destroy(set);
 }
