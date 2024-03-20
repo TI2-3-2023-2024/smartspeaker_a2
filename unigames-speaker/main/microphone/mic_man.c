@@ -1,6 +1,7 @@
 #include "mic_man.h"
 #include "../audio/player.h"
 #include "../audio/audio_man.h"
+#include "language.h"
 
 #define MAX_FILES 5
 
@@ -219,11 +220,29 @@ void tone_detection_task(void *pvParameters)
 void mic_init(void (*callback)())
 {
     *bas_file_uris = malloc(MAX_FILES * sizeof(char*));
-    bas_file_uris[0] = "/sdcard/peter.mp3";
-    bas_file_uris[1] = "/sdcard/nl/games/bas/JA.mp3";
-    bas_file_uris[2] = "/sdcard/nl/games/bas/BUHHH.mp3";
-    bas_file_uris[3] = "/sdcard/nl/games/bas/HOHOHO.mp3";
-    bas_file_uris[4] = "/sdcard/nl/games/bas/NEE.mp3";
+
+    //check which language is active
+    if(language == 0){
+        bas_file_uris[0] = "/sdcard/nl/games/bas/BAS.mp3";
+        bas_file_uris[1] = "/sdcard/nl/games/bas/JA.mp3";
+        bas_file_uris[2] = "/sdcard/nl/games/bas/BUHHH.mp3";
+        bas_file_uris[3] = "/sdcard/nl/games/bas/HOHOHO.mp3"; 
+        bas_file_uris[4] = "/sdcard/nl/games/bas/NEE.mp3";
+    } else if(language == 1){
+        bas_file_uris[0] = "/sdcard/en/games/bas/BAS2.mp3";
+        bas_file_uris[1] = "/sdcard/en/games/bas/YES.mp3";
+        bas_file_uris[2] = "/sdcard/en/games/bas/BUHHH2.mp3";
+        bas_file_uris[3] = "/sdcard/en/games/bas/HOHOHO2.mp3"; 
+        bas_file_uris[4] = "/sdcard/en/games/bas/NO.mp3";
+    } else if(language == 2){
+        bas_file_uris[0] = "/sdcard/fr/games/bas/BAS2.mp3";
+        bas_file_uris[1] = "/sdcard/fr/games/bas/OUI.mp3";
+        bas_file_uris[2] = "/sdcard/fr/games/bas/BUHHH2.mp3";
+        bas_file_uris[3] = "/sdcard/fr/games/bas/HOHOHO2.mp3"; 
+        bas_file_uris[4] = "/sdcard/fr/games/bas/NON.mp3";
+    }
+    
+    
     esp_log_level_set("*", ESP_LOG_WARN);
     esp_log_level_set(TAG, ESP_LOG_INFO);
 
