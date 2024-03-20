@@ -1,7 +1,7 @@
 #include "mic_man.h"
 #include "../audio/player.h"
 #include "../audio/audio_man.h"
-#include "language.h"
+#include "../interface/language.h"
 
 #define MAX_FILES 5
 
@@ -15,29 +15,27 @@ void (*function_callback)(void);
 
 audio_pipeline_handle_t pipeline;
 
-    audio_element_handle_t i2s_stream_reader;
-    audio_element_handle_t resample_filter;
-    audio_element_handle_t raw_reader;
+audio_element_handle_t i2s_stream_reader;
+audio_element_handle_t resample_filter;
+audio_element_handle_t raw_reader;
 
-#define GOERTZEL_SAMPLE_RATE_HZ 8000	// Sample rate in [Hz]
-#define GOERTZEL_FRAME_LENGTH_MS 100	// Block length in [ms]
+#define GOERTZEL_SAMPLE_RATE_HZ 8000 // Sample rate in [Hz]
+#define GOERTZEL_FRAME_LENGTH_MS 100 // Block length in [ms]
 
 #define GOERTZEL_BUFFER_LENGTH (GOERTZEL_FRAME_LENGTH_MS * GOERTZEL_SAMPLE_RATE_HZ / 1000) // Buffer length in samples
 
-#define GOERTZEL_DETECTION_THRESHOLD 50.0f  // Detect a tone when log magnitude is above this value
+#define GOERTZEL_DETECTION_THRESHOLD 50.0f // Detect a tone when log magnitude is above this value
 
-#define AUDIO_SAMPLE_RATE 48000         // Audio capture sample rate [Hz]
+#define AUDIO_SAMPLE_RATE 48000 // Audio capture sample rate [Hz]
 
-#define DETECTION_TIMEOUT_MS 2000        // Timeout for detection in [ms]
+#define DETECTION_TIMEOUT_MS 2000 // Timeout for detection in [ms]
 
 bool timerended = false;
-
 
 static const int GOERTZEL_DETECT_FREQS[] = {
     300,
     500,
-    700
-};
+    700};
 
 #define GOERTZEL_NR_FREQS ((sizeof GOERTZEL_DETECT_FREQS) / (sizeof GOERTZEL_DETECT_FREQS[0]))
 
@@ -83,32 +81,40 @@ TimerHandle_t detection_timer;
 
 char *bas_file_uris[MAX_FILES];
 
-void timer_callbacked(TimerHandle_t xTimer) {
+void timer_callbacked(TimerHandle_t xTimer)
+{
     // This function will be called when the timer expires
     ESP_LOGI(TAG, "Timer elapsed");
     timerended = true;
 
     int random = rand() % 5;
-    play_audio(&player, bas_file_uris[0]);
+    play_audio(&player, bas_file_uris[random]);
 }
 
 // Function to start the detection timeout timer
-void start_detection_timer() {
-    if (detection_timer == NULL) {
+void start_detection_timer()
+{
+    if (detection_timer == NULL)
+    {
         detection_timer = xTimerCreate("DetectionTimer", pdMS_TO_TICKS(2000), pdFALSE, (void *)0, timer_callbacked);
     }
 
-    if (detection_timer != NULL) {
+    if (detection_timer != NULL)
+    {
         xTimerStart(detection_timer, 0);
-    } else {
+    }
+    else
+    {
         ESP_LOGE(TAG, "Failed to create detection timer");
     }
     timerended = false;
 }
 
 // Function to stop the detection timeout timer
-void stop_detection_timer() {
-    if (detection_timer != NULL) {
+void stop_detection_timer()
+{
+    if (detection_timer != NULL)
+    {
         xTimerStop(detection_timer, 0);
         xTimerDelete(detection_timer, 0);
         detection_timer = NULL;
@@ -120,37 +126,41 @@ void stop_detection_timer() {
  * Goertzel filter calculated
  * Use a logarithm for the magnitude
  */
-static void detect_freq(int target_freq, float magnitude) {
+static void detect_freq(int target_freq, float magnitude)
+{
     float logMagnitude = 10.0f * log10f(magnitude);
-    
-    if (logMagnitude > GOERTZEL_DETECTION_THRESHOLD) {
+
+    if (logMagnitude > GOERTZEL_DETECTION_THRESHOLD)
+    {
         ESP_LOGI(TAG, "Detection at frequency %d Hz (magnitude %.2f, log magnitude %.2f)", target_freq, magnitude, logMagnitude);
         start_detection_timer(); // Start or reset the detection timer
         ESP_LOGI(TAG, "Timer started");
         timerended = true; // Set flag to prevent timer from starting again
-    } else if (!timerended) {
+    }
+    else if (!timerended)
+    {
         stop_detection_timer(); // Stop the detection timer
         ESP_LOGI(TAG, "Timer stopped");
         timerended = true; // Set flag to prevent timer from starting again
     }
 }
 
-void tone_detection_task(void *pvParameters) 
+void tone_detection_task(void *pvParameters)
 {
     button_pressed = false;
     goertzel_filter_cfg_t filters_cfg[GOERTZEL_NR_FREQS];
     goertzel_filter_data_t filters_data[GOERTZEL_NR_FREQS];
 
-
     ESP_LOGI(TAG, "Create raw sample buffer");
-    int16_t *raw_buffer = (int16_t *) malloc((GOERTZEL_BUFFER_LENGTH * sizeof(int16_t)));
-    if (raw_buffer == NULL) {
+    int16_t *raw_buffer = (int16_t *)malloc((GOERTZEL_BUFFER_LENGTH * sizeof(int16_t)));
+    if (raw_buffer == NULL)
+    {
         ESP_LOGE(TAG, "Memory allocation for raw sample buffer failed");
-        
     }
 
     ESP_LOGI(TAG, "Setup Goertzel detection filters");
-    for (int f = 0; f < GOERTZEL_NR_FREQS; f++) {
+    for (int f = 0; f < GOERTZEL_NR_FREQS; f++)
+    {
         filters_cfg[f].sample_rate = GOERTZEL_SAMPLE_RATE_HZ;
         filters_cfg[f].target_freq = GOERTZEL_DETECT_FREQS[f];
         filters_cfg[f].buffer_length = GOERTZEL_BUFFER_LENGTH;
@@ -178,25 +188,30 @@ void tone_detection_task(void *pvParameters)
     ESP_LOGI(TAG, "Start pipeline");
     audio_pipeline_run(pipeline);
 
-    while (1) {
-        if(button_pressed) {
+    while (1)
+    {
+        if (button_pressed)
+        {
             break;
         }
-        raw_stream_read(raw_reader, (char *) raw_buffer, GOERTZEL_BUFFER_LENGTH * sizeof(int16_t));
-        for (int f = 0; f < GOERTZEL_NR_FREQS; f++) {
+        raw_stream_read(raw_reader, (char *)raw_buffer, GOERTZEL_BUFFER_LENGTH * sizeof(int16_t));
+        for (int f = 0; f < GOERTZEL_NR_FREQS; f++)
+        {
             float magnitude;
-            if(button_pressed) {
-            break;
-        }
+            if (button_pressed)
+            {
+                break;
+            }
             esp_err_t error = goertzel_filter_process(&filters_data[f], raw_buffer, GOERTZEL_BUFFER_LENGTH);
             ESP_ERROR_CHECK(error);
 
-            if (goertzel_filter_new_magnitude(&filters_data[f], &magnitude)) {
+            if (goertzel_filter_new_magnitude(&filters_data[f], &magnitude))
+            {
                 detect_freq(filters_cfg[f].target_freq, magnitude);
             }
         }
     }
-    
+
     vTaskDelete(NULL);
     // Clean up (if we somehow leave the while loop, that is...)
     ESP_LOGI(TAG, "Deallocate raw sample buffer memory");
@@ -219,30 +234,34 @@ void tone_detection_task(void *pvParameters)
 
 void mic_init(void (*callback)())
 {
-    *bas_file_uris = malloc(MAX_FILES * sizeof(char*));
+    *bas_file_uris = malloc(MAX_FILES * sizeof(char *));
 
-    //check which language is active
-    if(language == 0){
+    // check which language is active
+    if (language == 0)
+    {
         bas_file_uris[0] = "/sdcard/nl/games/bas/BAS.mp3";
         bas_file_uris[1] = "/sdcard/nl/games/bas/JA.mp3";
         bas_file_uris[2] = "/sdcard/nl/games/bas/BUHHH.mp3";
-        bas_file_uris[3] = "/sdcard/nl/games/bas/HOHOHO.mp3"; 
+        bas_file_uris[3] = "/sdcard/nl/games/bas/HOHOHO.mp3";
         bas_file_uris[4] = "/sdcard/nl/games/bas/NEE.mp3";
-    } else if(language == 1){
+    }
+    else if (language == 1)
+    {
         bas_file_uris[0] = "/sdcard/en/games/bas/BAS2.mp3";
         bas_file_uris[1] = "/sdcard/en/games/bas/YES.mp3";
         bas_file_uris[2] = "/sdcard/en/games/bas/BUHHH2.mp3";
-        bas_file_uris[3] = "/sdcard/en/games/bas/HOHOHO2.mp3"; 
+        bas_file_uris[3] = "/sdcard/en/games/bas/HOHOHO2.mp3";
         bas_file_uris[4] = "/sdcard/en/games/bas/NO.mp3";
-    } else if(language == 2){
+    }
+    else if (language == 2)
+    {
         bas_file_uris[0] = "/sdcard/fr/games/bas/BAS2.mp3";
         bas_file_uris[1] = "/sdcard/fr/games/bas/OUI.mp3";
         bas_file_uris[2] = "/sdcard/fr/games/bas/BUHHH2.mp3";
-        bas_file_uris[3] = "/sdcard/fr/games/bas/HOHOHO2.mp3"; 
+        bas_file_uris[3] = "/sdcard/fr/games/bas/HOHOHO2.mp3";
         bas_file_uris[4] = "/sdcard/fr/games/bas/NON.mp3";
     }
-    
-    
+
     esp_log_level_set("*", ESP_LOG_WARN);
     esp_log_level_set(TAG, ESP_LOG_INFO);
 
